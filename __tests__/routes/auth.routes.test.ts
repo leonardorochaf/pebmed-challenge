@@ -121,4 +121,13 @@ describe('Auth Routes', () => {
         })
     })
   })
+
+  describe('POST /auth/logout', () => {
+    test('Should 204 if invalid token is set', async () => {
+      await request(app)
+        .post(`${apiPath}/auth/logout`)
+        .set('x-auth-token', 'invalid_token')
+        .expect(204)
+    })
+  })
 })
