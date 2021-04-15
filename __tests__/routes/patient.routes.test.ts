@@ -1,7 +1,10 @@
 import request from 'supertest'
+import { getConnection } from 'typeorm'
 
 import app from '../../src/app'
 import connectionHelper from '../../src/database/connection-helper'
+import { Patient } from '../../src/models/Patient'
+import { Gender } from '../../src/utils/gender-enum'
 import { apiPath } from '../../src/utils/strings'
 
 describe('Patient Routes', () => {
@@ -46,6 +49,34 @@ describe('Patient Routes', () => {
       await request(app)
         .post(`${apiPath}/patients`)
         .send({})
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
+
+    test('Should 400 if email already in use', async () => {
+      const repository = getConnection(process.env.NODE_ENV).getRepository(Patient)
+      await repository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        phone: '21 123456789',
+        email: 'leonardo.rocha@gmail.com',
+        birthday: '1995-03-08',
+        gender: Gender.MASCULINO,
+        height: 1.78,
+        weight: 80
+      })
+      await request(app)
+        .post(`${apiPath}/patients`)
+        .send({
+          name: 'Leonardo Rocha',
+          phone: '21 123456789',
+          email: 'leonardo.rocha@gmail.com',
+          birthday: '1995-03-08',
+          gender: 'Masculino',
+          height: 1.78,
+          weight: 80
+        })
         .expect(400).then((res) => {
           expect(res.body).toHaveProperty('error')
         })
