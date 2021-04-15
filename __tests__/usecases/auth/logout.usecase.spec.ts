@@ -1,6 +1,7 @@
 import faker from 'faker'
 
 import { Session } from '../../../src/models/Session'
+import { IDeleteSessionRepository } from '../../../src/repositories/session/interfaces/delete-session.repository.interface'
 import { IGetActiveSessionByTokenRepository } from '../../../src/repositories/session/interfaces/get-active-session-by-token.respository.interface'
 import { LogoutUsecase } from '../../../src/usecases/auth/logout.usecase'
 
@@ -20,23 +21,30 @@ const mockGetActiveSessionByTokenRepositoryResponse = {
   }
 }
 
-type SutTypes = {
-  sut: LogoutUsecase
-  getActiveSessionByTokenRepositoryStub: GetActiveSessionByTokenRepositoryStub
-}
-
 class GetActiveSessionByTokenRepositoryStub implements IGetActiveSessionByTokenRepository {
   async getActiveByToken (token: string): Promise<Session> {
     return mockGetActiveSessionByTokenRepositoryResponse
   }
 }
 
+class DeleteSessionRepositoryStub implements IDeleteSessionRepository {
+  async logicalDelete (sessionId: string): Promise<void> { }
+}
+
+type SutTypes = {
+  sut: LogoutUsecase
+  getActiveSessionByTokenRepositoryStub: GetActiveSessionByTokenRepositoryStub
+  deleteSessionRepositoryStub: DeleteSessionRepositoryStub
+}
+
 const sutFactory = (): SutTypes => {
+  const deleteSessionRepositoryStub = new DeleteSessionRepositoryStub()
   const getActiveSessionByTokenRepositoryStub = new GetActiveSessionByTokenRepositoryStub()
-  const sut = new LogoutUsecase(getActiveSessionByTokenRepositoryStub)
+  const sut = new LogoutUsecase(getActiveSessionByTokenRepositoryStub, deleteSessionRepositoryStub)
   return {
     sut,
-    getActiveSessionByTokenRepositoryStub
+    getActiveSessionByTokenRepositoryStub,
+    deleteSessionRepositoryStub
   }
 }
 
@@ -62,5 +70,12 @@ describe('Logout Usecase', () => {
     })
     const promise = sut.execute(token)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call DeleteSessionRepository with correct id', async () => {
+    const { sut, deleteSessionRepositoryStub } = sutFactory()
+    const logicalDeleteSpy = jest.spyOn(deleteSessionRepositoryStub, 'logicalDelete')
+    await sut.execute(token)
+    expect(logicalDeleteSpy).toHaveBeenCalledWith(mockGetActiveSessionByTokenRepositoryResponse.id)
   })
 })
