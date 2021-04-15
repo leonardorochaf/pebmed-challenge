@@ -1,11 +1,27 @@
 import request from 'supertest'
-import { getConnection } from 'typeorm'
+import faker from 'faker'
+import { getConnection, getCustomRepository } from 'typeorm'
 import bcrypt from 'bcrypt'
 
 import app from '../../src/app'
 import connectionHelper from '../../src/database/connection-helper'
 import { Doctor } from '../../src/models/Doctor'
 import { apiPath } from '../../src/utils/strings'
+import { SessionRepository } from '../../src/repositories/session/session.repository'
+import { DoctorRepository } from '../../src/repositories/doctor/doctor.repository'
+import { JwtService } from '../../src/services/jwt/jwt.service'
+
+const mockAccessToken = async (): Promise<string> => {
+  const createdDoctor = await getCustomRepository(DoctorRepository, process.env.NODE_ENV).createAndSave({
+    name: faker.name.findName(),
+    email: faker.internet.email(),
+    hashedPassword: faker.datatype.uuid()
+  })
+  const accessToken = await new JwtService().generate(createdDoctor.id)
+  await getCustomRepository(SessionRepository, process.env.NODE_ENV).createAndSave({ token: accessToken, doctor: createdDoctor })
+
+  return accessToken
+}
 
 describe('Auth Routes', () => {
   beforeAll(async () => {
@@ -127,6 +143,14 @@ describe('Auth Routes', () => {
       await request(app)
         .post(`${apiPath}/auth/logout`)
         .set('x-auth-token', 'invalid_token')
+        .expect(204)
+    })
+
+    test('Should 204 if valid token is set', async () => {
+      const token = await mockAccessToken()
+      await request(app)
+        .post(`${apiPath}/auth/logout`)
+        .set('x-auth-token', token)
         .expect(204)
     })
   })
