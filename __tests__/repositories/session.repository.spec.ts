@@ -45,4 +45,25 @@ describe('Session Repository', () => {
     expect(createdSession[0].doctor.email).toBe(createdDoctor.email)
     expect(createdSession[0].doctor.password).toBe(createdDoctor.password)
   })
+
+  test('Should find session by token and return it', async () => {
+    const sut = getCustomRepository(SessionRepository, process.env.NODE_ENV)
+    const doctorRepository = getCustomRepository(DoctorRepository, process.env.NODE_ENV)
+    const createdDoctor = await doctorRepository.createAndSave({
+      name: faker.name.findName(),
+      email: faker.internet.email(),
+      hashedPassword: faker.datatype.uuid()
+    })
+    saveRequest.doctor = createdDoctor
+    await sut.createAndSave(saveRequest)
+    const sessionByToken = await sut.getActiveByToken(saveRequest.token)
+    expect(sessionByToken.id).toBeTruthy()
+    expect(sessionByToken.token).toBe(saveRequest.token)
+    expect(sessionByToken.loginAt).toBeTruthy()
+    expect(sessionByToken.logoutAt).toBeFalsy()
+    expect(sessionByToken.doctor.id).toBe(createdDoctor.id)
+    expect(sessionByToken.doctor.name).toBe(createdDoctor.name)
+    expect(sessionByToken.doctor.email).toBe(createdDoctor.email)
+    expect(sessionByToken.doctor.password).toBe(createdDoctor.password)
+  })
 })

@@ -3,12 +3,17 @@ import { EntityRepository, Repository } from 'typeorm'
 
 import { Session } from '../../models/Session'
 import { ISaveSessionRepository, SaveSessionData } from './interfaces/save-session.repository.interface'
+import { IGetActiveSessionByTokenRepository } from './interfaces/get-active-session-by-token.respository.interface'
 
 @EntityRepository(Session)
-export class SessionRepository extends Repository<Session> implements ISaveSessionRepository {
+export class SessionRepository extends Repository<Session> implements ISaveSessionRepository, IGetActiveSessionByTokenRepository {
   async createAndSave (params: SaveSessionData): Promise<void> {
     const createdSession = this.create(params)
     createdSession.id = uuid()
     await this.save(createdSession)
+  }
+
+  async getActiveByToken (token: string): Promise<Session> {
+    return await this.findOne({ token })
   }
 }
