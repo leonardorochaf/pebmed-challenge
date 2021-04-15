@@ -1,10 +1,10 @@
 import faker from 'faker'
+
 import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { Patient } from '../../../src/models/Patient'
 import { IGetPatientByEmailRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-email.repository.interface'
 import { ISavePatientRepository, SavePatientData } from '../../../src/repositories/patient/interfaces/save-patient.repository.interface'
 import { CreatePatientUsecase } from '../../../src/usecases/patient/create-patient.usecase'
-
 import { Gender } from '../../../src/utils/gender-enum'
 
 const mockRequest = {
