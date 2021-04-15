@@ -4,6 +4,7 @@ import faker from 'faker'
 import { LogoutController } from '../../../src/controllers/auth/logout.controller'
 
 import { ILogoutUsecase } from '../../../src/usecases/auth/interfaces/logout.usecase.interface'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   headers: {
@@ -39,5 +40,15 @@ describe('Logout Controller', () => {
     const executeSpy = jest.spyOn(logoutUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.headers['x-auth-token'])
+  })
+
+  test('Should 500 if LogoutUsecase throws', async () => {
+    const { sut, logoutUsecaseStub } = sutFactory()
+    jest.spyOn(logoutUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
