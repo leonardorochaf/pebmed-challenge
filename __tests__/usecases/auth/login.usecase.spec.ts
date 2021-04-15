@@ -2,6 +2,7 @@ import faker from 'faker'
 import { InvalidCredentialsError } from '../../../src/errors/InvalidCredentialsError'
 import { Doctor } from '../../../src/models/Doctor'
 import { IGetDoctorByEmailRepository } from '../../../src/repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
+import { ISaveSessionRepository, SaveSessionData } from '../../../src/repositories/session/interfaces/save-session.repository.interface'
 import { IHasherComparer } from '../../../src/services/cryptography/interfaces/hasher-comparer.interface'
 import { IGenerateToken } from '../../../src/services/jwt/interfaces/generate-token.interface'
 import { LoginUsecase } from '../../../src/usecases/auth/login.usecase'
@@ -39,23 +40,30 @@ class GenerateTokenStub implements IGenerateToken {
   }
 }
 
+class SaveSessionRepositoryStub implements ISaveSessionRepository {
+  async createAndSave (data: SaveSessionData): Promise<void> { }
+}
+
 type SutTypes = {
   sut: LoginUsecase
   getDoctorByEmailRepositoryStub: GetDoctorByEmailRepositoryStub
   hasherComparerStub: HasherComparerStub
   generateTokenStub: GenerateTokenStub
+  saveSessionRepositoryStub: SaveSessionRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const saveSessionRepositoryStub = new SaveSessionRepositoryStub()
   const generateTokenStub = new GenerateTokenStub()
   const hasherComparerStub = new HasherComparerStub()
   const getDoctorByEmailRepositoryStub = new GetDoctorByEmailRepositoryStub()
-  const sut = new LoginUsecase(getDoctorByEmailRepositoryStub, hasherComparerStub, generateTokenStub)
+  const sut = new LoginUsecase(getDoctorByEmailRepositoryStub, hasherComparerStub, generateTokenStub, saveSessionRepositoryStub)
   return {
     sut,
     getDoctorByEmailRepositoryStub,
     hasherComparerStub,
-    generateTokenStub
+    generateTokenStub,
+    saveSessionRepositoryStub
   }
 }
 
@@ -120,5 +128,12 @@ describe('Login Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call SaveSessionRepository with correct values', async () => {
+    const { sut, saveSessionRepositoryStub } = sutFactory()
+    const generateSpy = jest.spyOn(saveSessionRepositoryStub, 'createAndSave')
+    await sut.execute(mockRequest)
+    expect(generateSpy).toHaveBeenCalledWith({ token: mockGenerateTokenResponse, doctor: mockGetDoctorByEmailResponse })
   })
 })
