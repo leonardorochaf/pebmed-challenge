@@ -7,6 +7,7 @@ import { ValidationError } from '../../../src/errors/validation-error'
 import { CreatePatientValidationModel } from '../../../src/validation/validation-models/patient/create-patient-validation.model'
 import { CreatePatientController } from '../../../src/controllers/patient/create-patient.controller'
 import { Gender } from '../../../src/utils/gender-enum'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   body: {
@@ -59,5 +60,15 @@ describe('Create Patient Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: [{ message: 'Email inválido' }] })
+  })
+
+  test('Should 500 and return server error message if validation throws', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
