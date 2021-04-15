@@ -11,6 +11,8 @@ export class LogoutController {
     try {
       const token = String(req.headers['x-auth-token'])
       await this.logoutUsecase.execute(token)
+
+      return res.status(204).json()
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }

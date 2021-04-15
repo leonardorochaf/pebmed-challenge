@@ -51,4 +51,12 @@ describe('Logout Controller', () => {
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
+
+  test('Should 204 if LogoutUsecase returns undefined', async () => {
+    const { sut, logoutUsecaseStub } = sutFactory()
+    jest.spyOn(logoutUsecaseStub, 'execute').mockReturnValueOnce(Promise.resolve(undefined))
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(204)
+    expect(res.json).toHaveBeenCalledWith()
+  })
 })
