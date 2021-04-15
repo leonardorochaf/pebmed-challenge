@@ -112,4 +112,13 @@ describe('Login Usecase', () => {
     await sut.execute(mockRequest)
     expect(generateSpy).toHaveBeenCalledWith(mockGetDoctorByEmailResponse.id)
   })
+
+  test('Should throw if GenerateToken throws', async () => {
+    const { sut, generateTokenStub } = sutFactory()
+    jest.spyOn(generateTokenStub, 'generate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
