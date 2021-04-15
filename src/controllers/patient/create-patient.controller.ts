@@ -10,6 +10,9 @@ export class CreatePatientController {
   ) { }
 
   async handle (req: Request, res: Response) {
-    await this.validator.validate(req.body, CreatePatientValidationModel, false)
+    const validationErrors = await this.validator.validate(req.body, CreatePatientValidationModel, false)
+    if (validationErrors) {
+      return res.status(400).json({ error: validationErrors.errors })
+    }
   }
 }
