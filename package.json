@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "cross-env NODE_ENV=dev tsnd --inspect --respawn --transpile-only src/server.ts",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --runInBand",
     "test:unit": "cross-env NODE_ENV=test npm test -- --watch -c jest-unit.config.js",
     "test:integration": "cross-env NODE_ENV=test npm test -- --watch -c jest-integration.config.js",
