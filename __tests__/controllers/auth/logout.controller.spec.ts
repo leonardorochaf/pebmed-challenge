@@ -59,4 +59,11 @@ describe('Logout Controller', () => {
     expect(res.status).toHaveBeenCalledWith(204)
     expect(res.json).toHaveBeenCalledWith()
   })
+
+  test('Should 204 on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(204)
+    expect(res.json).toHaveBeenCalledWith()
+  })
 })
