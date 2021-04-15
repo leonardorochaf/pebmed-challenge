@@ -2,6 +2,7 @@ import faker from 'faker'
 import { InvalidCredentialsError } from '../../../src/errors/InvalidCredentialsError'
 import { Doctor } from '../../../src/models/Doctor'
 import { IGetDoctorByEmailRepository } from '../../../src/repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
+import { IHasherComparer } from '../../../src/services/cryptography/interfaces/hasher-comparer.interface'
 import { LoginUsecase } from '../../../src/usecases/auth/login.usecase'
 
 const mockRequest = {
@@ -23,17 +24,26 @@ class GetDoctorByEmailRepositoryStub implements IGetDoctorByEmailRepository {
   }
 }
 
+class HasherComparerStub implements IHasherComparer {
+  async compare (text: string, hashedText: string): Promise<boolean> {
+    return true
+  }
+}
+
 type SutTypes = {
   sut: LoginUsecase
   getDoctorByEmailRepositoryStub: GetDoctorByEmailRepositoryStub
+  hasherComparerStub: HasherComparerStub
 }
 
 const sutFactory = (): SutTypes => {
+  const hasherComparerStub = new HasherComparerStub()
   const getDoctorByEmailRepositoryStub = new GetDoctorByEmailRepositoryStub()
-  const sut = new LoginUsecase(getDoctorByEmailRepositoryStub)
+  const sut = new LoginUsecase(getDoctorByEmailRepositoryStub, hasherComparerStub)
   return {
     sut,
-    getDoctorByEmailRepositoryStub
+    getDoctorByEmailRepositoryStub,
+    hasherComparerStub
   }
 }
 
@@ -59,5 +69,12 @@ describe('Login Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call HasherComparer with correct password and hashedPassword', async () => {
+    const { sut, hasherComparerStub } = sutFactory()
+    const compareSpy = jest.spyOn(hasherComparerStub, 'compare')
+    await sut.execute(mockRequest)
+    expect(compareSpy).toHaveBeenCalledWith(mockRequest.password, mockGetDoctorByEmailResponse.password)
   })
 })
