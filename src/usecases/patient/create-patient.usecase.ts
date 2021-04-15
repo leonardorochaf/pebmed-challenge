@@ -16,8 +16,8 @@ export class CreatePatientUsecase implements ICreatePatientUsecase {
       throw new EmailAlreadyInUseError()
     }
 
-    await this.savePatientRepository.createAndSave(params)
+    const { createdAt, updatedAt, deletedAt, ...response } = await this.savePatientRepository.createAndSave(params)
 
-    return Promise.resolve(null)
+    return response
   }
 }

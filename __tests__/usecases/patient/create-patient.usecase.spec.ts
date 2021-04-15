@@ -99,4 +99,12 @@ describe('Create Patient Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned patient', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequest)
+    expect(response).not.toHaveProperty('createdAt')
+    expect(response).not.toHaveProperty('updatedAt')
+    expect(response).not.toHaveProperty('deletedAt')
+  })
 })
