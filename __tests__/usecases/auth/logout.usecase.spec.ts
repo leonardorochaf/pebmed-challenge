@@ -54,4 +54,13 @@ describe('Logout Usecase', () => {
     const empty = await sut.execute(token)
     expect(empty).toBe(undefined)
   })
+
+  test('Should throw if GetActiveSessionByTokenRepository throws', async () => {
+    const { sut, getActiveSessionByTokenRepositoryStub } = sutFactory()
+    jest.spyOn(getActiveSessionByTokenRepositoryStub, 'getActiveByToken').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(token)
+    await expect(promise).rejects.toThrow()
+  })
 })
