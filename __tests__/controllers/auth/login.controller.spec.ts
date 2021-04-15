@@ -97,4 +97,14 @@ describe('Login Controller', () => {
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: 'Credenciais inválidas' })
   })
+
+  test('Should 500 and return server error message if LoginUsecaseStub throws', async () => {
+    const { sut, loginUsecaseStub } = sutFactory()
+    jest.spyOn(loginUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
