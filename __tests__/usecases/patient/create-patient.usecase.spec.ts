@@ -64,4 +64,13 @@ describe('Create Patient Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow(EmailAlreadyInUseError)
   })
+
+  test('Should throw if GetPatientByEmailRepository throws', async () => {
+    const { sut, getPatientByEmailRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
