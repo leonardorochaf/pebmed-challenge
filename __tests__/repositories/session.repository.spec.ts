@@ -66,4 +66,10 @@ describe('Session Repository', () => {
     expect(sessionByToken.doctor.email).toBe(createdDoctor.email)
     expect(sessionByToken.doctor.password).toBe(createdDoctor.password)
   })
+
+  test('Should return null if theres no session with given token', async () => {
+    const sut = getCustomRepository(SessionRepository, process.env.NODE_ENV)
+    const sessionByToken = await sut.getActiveByToken('')
+    expect(sessionByToken).toBeFalsy()
+  })
 })
