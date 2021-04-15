@@ -136,4 +136,13 @@ describe('Login Usecase', () => {
     await sut.execute(mockRequest)
     expect(generateSpy).toHaveBeenCalledWith({ token: mockGenerateTokenResponse, doctor: mockGetDoctorByEmailResponse })
   })
+
+  test('Should throw if SaveSessionRepository throws', async () => {
+    const { sut, saveSessionRepositoryStub } = sutFactory()
+    jest.spyOn(saveSessionRepositoryStub, 'createAndSave').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
