@@ -8,6 +8,8 @@ import { CreatePatientValidationModel } from '../../../src/validation/validation
 import { CreatePatientController } from '../../../src/controllers/patient/create-patient.controller'
 import { Gender } from '../../../src/utils/gender-enum'
 import { serverErrorMessage } from '../../../src/utils/strings'
+import { CreatePatientParams, ICreatePatientUsecase } from '../../../src/usecases/patient/interface/create-patient.usecase.interface'
+import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patient-response'
 
 const req: Request = {
   body: {
@@ -25,24 +27,43 @@ const res: Response = {} as Response
 res.status = jest.fn().mockReturnValue(res)
 res.json = jest.fn().mockReturnValue(res)
 
+const mockCreatePatientUsecaseResponse = {
+  id: faker.datatype.uuid(),
+  name: faker.name.findName(),
+  phone: faker.phone.phoneNumber(),
+  email: faker.internet.email(),
+  birthday: faker.date.past(),
+  gender: Gender.MASCULINO,
+  height: faker.datatype.float({ min: 0, max: 2.5 }),
+  weight: faker.datatype.float({ min: 0, max: 100 })
+}
+
 class ValidatorStub implements IValidator {
   async validate (data: any, validationModel: any, skipMissingProperties: boolean): Promise<ValidationError> {
     return null
   }
 }
 
+class CreatePatientUsecaseStub implements ICreatePatientUsecase {
+  async execute (params: CreatePatientParams): Promise<DefaultPatientResponse> {
+    return mockCreatePatientUsecaseResponse
+  }
+}
+
 type SutTypes = {
   sut: CreatePatientController
   validatorStub: ValidatorStub
+  createPatientUsecaseStub: CreatePatientUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const createPatientUsecaseStub = new CreatePatientUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new CreatePatientController(validatorStub)
-
+  const sut = new CreatePatientController(validatorStub, createPatientUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    createPatientUsecaseStub
   }
 }
 
@@ -70,5 +91,12 @@ describe('Create Patient Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call CreatePatientUsecase with correct values', async () => {
+    const { sut, createPatientUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(createPatientUsecaseStub, 'execute')
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith(req.body)
   })
 })
