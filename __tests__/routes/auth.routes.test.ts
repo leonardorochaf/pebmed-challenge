@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { getConnection } from 'typeorm'
+import bcrypt from 'bcrypt'
 
 import app from '../../src/app'
 import connectionHelper from '../../src/database/connection-helper'
@@ -58,6 +59,28 @@ describe('Auth Routes', () => {
         })
         .expect(400).then((res) => {
           expect(res.body).toHaveProperty('error')
+        })
+    })
+  })
+
+  describe('POST /auth/login', () => {
+    test('Should 200 on success', async () => {
+      const hashedPassword = await bcrypt.hash('12345678', 12)
+      const doctorRepository = getConnection(process.env.NODE_ENV).getRepository(Doctor)
+      await doctorRepository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        email: 'leonardo.rocha@gmail.com',
+        password: hashedPassword
+      })
+      await request(app)
+        .post(`${apiPath}/auth/login`)
+        .send({
+          email: 'leonardo.rocha@gmail.com',
+          password: '12345678'
+        })
+        .expect(200).then((res) => {
+          expect(res.body).toHaveProperty('token')
         })
     })
   })
