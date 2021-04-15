@@ -81,4 +81,13 @@ describe('sign Up Usecase', () => {
     await sut.execute(mockRequest)
     expect(hashSpy).toHaveBeenCalledWith(mockRequest.password)
   })
+
+  test('Should throw if Hasher throws', async () => {
+    const { sut, hasherStub } = sutFactory()
+    jest.spyOn(hasherStub, 'hash').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    expect(promise).rejects.toThrow()
+  })
 })
