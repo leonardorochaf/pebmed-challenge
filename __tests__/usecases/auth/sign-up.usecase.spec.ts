@@ -3,6 +3,7 @@ import faker from 'faker'
 import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { Doctor } from '../../../src/models/Doctor'
 import { IGetDoctorByEmailRepository } from '../../../src/repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
+import { ISaveDoctorRepository, SaveDoctorData } from '../../../src/repositories/doctor/interfaces/save-doctor.repository.interface'
 import { IHasher } from '../../../src/services/cryptography/interfaces/hasher.interface'
 import { SignUpUsecase } from '../../../src/usecases/auth/sign-up.usecase'
 
@@ -34,20 +35,29 @@ class HasherStub implements IHasher {
   }
 }
 
+class SaveDoctorRepositoryStub implements ISaveDoctorRepository {
+  async createAndSave (data: SaveDoctorData): Promise<Doctor> {
+    return mockResponse
+  }
+}
+
 type SutTypes = {
   sut: SignUpUsecase
   getDoctorByEmailRepositoryStub: GetDoctorByEmailRepositoryStub
   hasherStub: HasherStub
+  saveDoctorRepositoryStub: SaveDoctorRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
   const getDoctorByEmailRepositoryStub = new GetDoctorByEmailRepositoryStub()
   const hasherStub = new HasherStub()
-  const sut = new SignUpUsecase(getDoctorByEmailRepositoryStub, hasherStub)
+  const saveDoctorRepositoryStub = new SaveDoctorRepositoryStub()
+  const sut = new SignUpUsecase(getDoctorByEmailRepositoryStub, hasherStub, saveDoctorRepositoryStub)
   return {
     sut,
     getDoctorByEmailRepositoryStub,
-    hasherStub
+    hasherStub,
+    saveDoctorRepositoryStub
   }
 }
 
@@ -89,5 +99,12 @@ describe('sign Up Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should call SaveDoctorRepository with correct values', async () => {
+    const { sut, saveDoctorRepositoryStub } = sutFactory()
+    const createAndSaveSpy = jest.spyOn(saveDoctorRepositoryStub, 'createAndSave')
+    await sut.execute(mockRequest)
+    expect(createAndSaveSpy).toHaveBeenCalledWith({ name: mockRequest.name, email: mockRequest.email, hashedPassword })
   })
 })
