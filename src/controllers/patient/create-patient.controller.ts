@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
+import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
 import { ICreatePatientUsecase } from '../../usecases/patient/interface/create-patient.usecase.interface'
 
 import { serverErrorMessage } from '../../utils/strings'
@@ -23,6 +24,10 @@ export class CreatePatientController {
 
       await this.createPatientUsecase.execute({ name, phone, email, birthday, gender, height, weight })
     } catch (e) {
+      if (e instanceof EmailAlreadyInUseError) {
+        return res.status(400).json({ error: e.message })
+      }
+
       return res.status(500).json({ error: serverErrorMessage })
     }
   }

@@ -10,6 +10,7 @@ import { Gender } from '../../../src/utils/gender-enum'
 import { serverErrorMessage } from '../../../src/utils/strings'
 import { CreatePatientParams, ICreatePatientUsecase } from '../../../src/usecases/patient/interface/create-patient.usecase.interface'
 import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patient-response'
+import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 
 const req: Request = {
   body: {
@@ -98,5 +99,15 @@ describe('Create Patient Controller', () => {
     const executeSpy = jest.spyOn(createPatientUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.body)
+  })
+
+  test('Should 400 and return default message if CreatePatientUsecase throw EmailAlreadyInUseError', async () => {
+    const { sut, createPatientUsecaseStub } = sutFactory()
+    jest.spyOn(createPatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new EmailAlreadyInUseError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Esse email já está em uso' })
   })
 })
