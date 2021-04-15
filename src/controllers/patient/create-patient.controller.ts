@@ -22,7 +22,9 @@ export class CreatePatientController {
 
       const { name, phone, email, birthday, gender, height, weight } = req.body
 
-      await this.createPatientUsecase.execute({ name, phone, email, birthday, gender, height, weight })
+      const createdPatient = await this.createPatientUsecase.execute({ name, phone, email, birthday, gender, height, weight })
+
+      return res.status(201).json(createdPatient)
     } catch (e) {
       if (e instanceof EmailAlreadyInUseError) {
         return res.status(400).json({ error: e.message })
