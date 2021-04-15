@@ -90,4 +90,13 @@ describe('Create Patient Usecase', () => {
     await sut.execute(mockRequest)
     expect(saveSpy).toHaveBeenCalledWith(mockRequest)
   })
+
+  test('Should throw if SavePatientRepository throws', async () => {
+    const { sut, savePatientRepositoryStub } = sutFactory()
+    jest.spyOn(savePatientRepositoryStub, 'createAndSave').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
