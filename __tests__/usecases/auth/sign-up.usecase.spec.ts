@@ -3,6 +3,7 @@ import faker from 'faker'
 import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { Doctor } from '../../../src/models/Doctor'
 import { IGetDoctorByEmailRepository } from '../../../src/repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
+import { IHasher } from '../../../src/services/cryptography/interfaces/hasher.interface'
 import { SignUpUsecase } from '../../../src/usecases/auth/sign-up.usecase'
 
 const mockRequest = {
@@ -27,17 +28,26 @@ class GetDoctorByEmailRepositoryStub implements IGetDoctorByEmailRepository {
   }
 }
 
+class HasherStub implements IHasher {
+  async hash (text: string): Promise<string> {
+    return hashedPassword
+  }
+}
+
 type SutTypes = {
   sut: SignUpUsecase
   getDoctorByEmailRepositoryStub: GetDoctorByEmailRepositoryStub
+  hasherStub: HasherStub
 }
 
 const sutFactory = (): SutTypes => {
   const getDoctorByEmailRepositoryStub = new GetDoctorByEmailRepositoryStub()
-  const sut = new SignUpUsecase(getDoctorByEmailRepositoryStub)
+  const hasherStub = new HasherStub()
+  const sut = new SignUpUsecase(getDoctorByEmailRepositoryStub, hasherStub)
   return {
     sut,
-    getDoctorByEmailRepositoryStub
+    getDoctorByEmailRepositoryStub,
+    hasherStub
   }
 }
 
@@ -63,5 +73,12 @@ describe('sign Up Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call Hasher with correct password', async () => {
+    const { sut, hasherStub } = sutFactory()
+    const hashSpy = jest.spyOn(hasherStub, 'hash')
+    await sut.execute(mockRequest)
+    expect(hashSpy).toHaveBeenCalledWith(mockRequest.password)
   })
 })

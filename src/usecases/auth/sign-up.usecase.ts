@@ -1,10 +1,12 @@
 import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
 import { IGetDoctorByEmailRepository } from '../../repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
+import { IHasher } from '../../services/cryptography/interfaces/hasher.interface'
 import { SignUpParams } from './interfaces/sign-up.usecase.interface'
 
 export class SignUpUsecase {
   constructor (
-    private readonly getDoctorByEmailRepository: IGetDoctorByEmailRepository
+    private readonly getDoctorByEmailRepository: IGetDoctorByEmailRepository,
+    private readonly hasher: IHasher
   ) { }
 
   async execute (params: SignUpParams): Promise<void> {
@@ -12,5 +14,7 @@ export class SignUpUsecase {
     if (doctorByEmail) {
       throw new EmailAlreadyInUseError()
     }
+
+    await this.hasher.hash(params.password)
   }
 }
