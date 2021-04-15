@@ -98,4 +98,14 @@ describe('Sign Up Controller', () => {
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: 'Esse email já está em uso' })
   })
+
+  test('Should 500 and return server error message if SignUpUsecase throws', async () => {
+    const { sut, createDoctorUsecaseStub } = sutFactory()
+    jest.spyOn(createDoctorUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
