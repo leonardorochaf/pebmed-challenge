@@ -20,7 +20,9 @@ export class LoginController {
       }
 
       const { email, password } = req.body
-      await this.loginUsecase.execute({ email, password })
+      const token = await this.loginUsecase.execute({ email, password })
+
+      return res.status(200).json(token)
     } catch (e) {
       if (e instanceof InvalidCredentialsError) {
         return res.status(400).json({ error: e.message })
