@@ -145,4 +145,10 @@ describe('Login Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should return generated token on success', async () => {
+    const { sut } = sutFactory()
+    const token = await sut.execute(mockRequest)
+    expect(token).toEqual({ token: mockGenerateTokenResponse })
+  })
 })

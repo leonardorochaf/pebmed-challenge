@@ -29,6 +29,6 @@ export class LoginUsecase implements ILoginUsecase {
 
     await this.saveSessionRepository.createAndSave({ token, doctor: doctorByEmail })
 
-    return Promise.resolve(null)
+    return { token }
   }
 }
