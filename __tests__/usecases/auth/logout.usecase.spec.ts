@@ -78,4 +78,13 @@ describe('Logout Usecase', () => {
     await sut.execute(token)
     expect(logicalDeleteSpy).toHaveBeenCalledWith(mockGetActiveSessionByTokenRepositoryResponse.id)
   })
+
+  test('Should throw if DeleteSessionRepository throws', async () => {
+    const { sut, deleteSessionRepositoryStub } = sutFactory()
+    jest.spyOn(deleteSessionRepositoryStub, 'logicalDelete').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(token)
+    await expect(promise).rejects.toThrow()
+  })
 })
