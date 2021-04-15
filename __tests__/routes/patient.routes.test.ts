@@ -82,4 +82,33 @@ describe('Patient Routes', () => {
         })
     })
   })
+
+  describe('GET /patients', () => {
+    test('Should 200 and return all patients on success', async () => {
+      const repository = getConnection(process.env.NODE_ENV).getRepository(Patient)
+      await repository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        phone: '21 123456789',
+        email: 'leonardo.rocha@gmail.com',
+        birthday: '1995-03-08',
+        gender: Gender.MASCULINO,
+        height: 1.78,
+        weight: 80
+      })
+      await request(app)
+        .get(`${apiPath}/patients`)
+        .expect(200).then((res) => {
+          expect(res.body).toHaveLength(1)
+          expect(res.body[0].id).toBe('1')
+          expect(res.body[0].name).toBe('Leonardo Rocha')
+          expect(res.body[0].phone).toBe('21 123456789')
+          expect(res.body[0].email).toBe('leonardo.rocha@gmail.com')
+          expect(res.body[0].birthday).toBe('1995-03-08')
+          expect(res.body[0].gender).toBe('Masculino')
+          expect(res.body[0].height).toBe(1.78)
+          expect(res.body[0].weight).toBe(80)
+        })
+    })
+  })
 })
