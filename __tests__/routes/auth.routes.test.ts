@@ -29,5 +29,14 @@ describe('Auth Routes', () => {
         })
         .expect(201)
     })
+
+    test('Should 400 if validation fails', async () => {
+      await request(app)
+        .post(`${apiPath}/auth/signup`)
+        .send({})
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
   })
 })
