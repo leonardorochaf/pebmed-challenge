@@ -7,7 +7,7 @@ import { DoctorRepository } from '../../src/repositories/doctor/doctor.repositor
 const saveRequest = {
   name: faker.name.findName(),
   email: faker.internet.email(),
-  hashedPassword: faker.random.uuid()
+  hashedPassword: faker.datatype.uuid()
 }
 
 describe('Doctor Repository', () => {
