@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { LoginController } from '../../../src/controllers/auth/login.controller'
 import { LoginResponse } from '../../../src/dtos/auth/login-response'
+import { InvalidCredentialsError } from '../../../src/errors/InvalidCredentialsError'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { ILoginUsecase, LoginUsecaseParams } from '../../../src/usecases/auth/interfaces/login.usecase.interface'
 import { serverErrorMessage } from '../../../src/utils/strings'
@@ -85,5 +86,15 @@ describe('Login Controller', () => {
     const executeSpy = jest.spyOn(loginUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith({ email: req.body.email, password: req.body.password })
+  })
+
+  test('Should 400 if LoginUsecaseStub throws InvalidCredentialsError', async () => {
+    const { sut, loginUsecaseStub } = sutFactory()
+    jest.spyOn(loginUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new InvalidCredentialsError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Credenciais inválidas' })
   })
 })

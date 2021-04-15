@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
+import { InvalidCredentialsError } from '../../errors/InvalidCredentialsError'
 import { ILoginUsecase } from '../../usecases/auth/interfaces/login.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -21,6 +22,10 @@ export class LoginController {
       const { email, password } = req.body
       await this.loginUsecase.execute({ email, password })
     } catch (e) {
+      if (e instanceof InvalidCredentialsError) {
+        return res.status(400).json({ error: e.message })
+      }
+
       return res.status(500).json({ error: serverErrorMessage })
     }
   }
