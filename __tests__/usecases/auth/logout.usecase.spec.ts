@@ -47,4 +47,11 @@ describe('Logout Usecase', () => {
     await sut.execute(token)
     expect(getActiveSpy).toHaveBeenCalledWith(token)
   })
+
+  test('Should return undefined if GetActiveSessionByTokenRepository retruns null', async () => {
+    const { sut, getActiveSessionByTokenRepositoryStub } = sutFactory()
+    jest.spyOn(getActiveSessionByTokenRepositoryStub, 'getActiveByToken').mockReturnValueOnce(Promise.resolve(null))
+    const empty = await sut.execute(token)
+    expect(empty).toBe(undefined)
+  })
 })
