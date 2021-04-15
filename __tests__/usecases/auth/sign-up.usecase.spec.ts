@@ -107,4 +107,13 @@ describe('sign Up Usecase', () => {
     await sut.execute(mockRequest)
     expect(createAndSaveSpy).toHaveBeenCalledWith({ name: mockRequest.name, email: mockRequest.email, hashedPassword })
   })
+
+  test('Should throw if SaveDoctorRepository throws', async () => {
+    const { sut, saveDoctorRepositoryStub } = sutFactory()
+    jest.spyOn(saveDoctorRepositoryStub, 'createAndSave').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
