@@ -45,4 +45,10 @@ describe('Doctor Repository', () => {
     expect(doctorByEmail.password).toBe(saveRequest.hashedPassword)
     expect(doctorByEmail.createdAt).toBeTruthy()
   })
+
+  test('Should return null if theres no patient with given email', async () => {
+    const sut = getCustomRepository(DoctorRepository, process.env.NODE_ENV)
+    const doctorByEmail = await sut.getByEmail(faker.internet.email())
+    expect(doctorByEmail).toBeFalsy()
+  })
 })
