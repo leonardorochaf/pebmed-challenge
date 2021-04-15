@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
+import { ISignUpUsecase } from '../../usecases/auth/interfaces/sign-up.usecase.interface'
 
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -7,7 +8,8 @@ import { SignUpValidationModel } from '../../validation/validation-models/auth/s
 
 export class SignUpController {
   constructor (
-    private readonly validator: IValidator
+    private readonly validator: IValidator,
+    private readonly signUpUsecase: ISignUpUsecase
   ) { }
 
   async handle (req: Request, res: Response) {
@@ -16,6 +18,9 @@ export class SignUpController {
       if (validationErrors) {
         return res.status(400).json({ error: validationErrors.errors })
       }
+
+      const { name, email, password } = req.body
+      await this.signUpUsecase.execute({ name, email, password })
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }

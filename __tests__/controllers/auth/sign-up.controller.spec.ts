@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { SignUpController } from '../../../src/controllers/auth/sign-up.controller'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { ISignUpUsecase, SignUpParams } from '../../../src/usecases/auth/interfaces/sign-up.usecase.interface'
 import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 import { SignUpValidationModel } from '../../../src/validation/validation-models/auth/sign-up.validation.model'
@@ -29,17 +30,24 @@ class ValidatorStub implements IValidator {
   }
 }
 
+class SignUpUsecaseStub implements ISignUpUsecase {
+  async execute (params: SignUpParams): Promise<void> { }
+}
+
 type SutTypes = {
   sut: SignUpController
   validatorStub: ValidatorStub
+  createDoctorUsecaseStub: SignUpUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const createDoctorUsecaseStub = new SignUpUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new SignUpController(validatorStub)
+  const sut = new SignUpController(validatorStub, createDoctorUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    createDoctorUsecaseStub
   }
 }
 
@@ -67,5 +75,16 @@ describe('Sign Up Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call SignUpUsecase with correct values', async () => {
+    const { sut, createDoctorUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(createDoctorUsecaseStub, 'execute')
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password
+    })
   })
 })
