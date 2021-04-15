@@ -92,5 +92,33 @@ describe('Auth Routes', () => {
           expect(res.body).toHaveProperty('error')
         })
     })
+
+    test('Should 400 if invalid credentials are provided', async () => {
+      const doctorRepository = getConnection(process.env.NODE_ENV).getRepository(Doctor)
+      await doctorRepository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        email: 'leonardo.rocha@gmail.com',
+        password: 'hashedPassword'
+      })
+      await request(app)
+        .post(`${apiPath}/auth/login`)
+        .send({
+          email: 'non-existent_email@email.com',
+          password: '12345678'
+        })
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+      await request(app)
+        .post(`${apiPath}/auth/login`)
+        .send({
+          email: 'leonardo.rocha@gmail.com',
+          password: 'wrong_password'
+        })
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
   })
 })
