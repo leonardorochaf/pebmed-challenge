@@ -33,4 +33,16 @@ describe('Doctor Repository', () => {
     expect(createdDoctor.password).toBe(saveRequest.hashedPassword)
     expect(createdDoctor.createdAt).toBeTruthy()
   })
+
+  test('Should search for a doctor by its email and return it if it finds one', async () => {
+    const sut = getCustomRepository(DoctorRepository, process.env.NODE_ENV)
+    await sut.createAndSave(saveRequest)
+    const doctorByEmail = await sut.getByEmail(saveRequest.email)
+    expect(doctorByEmail).toBeTruthy()
+    expect(doctorByEmail.id).toBeTruthy()
+    expect(doctorByEmail.name).toBe(saveRequest.name)
+    expect(doctorByEmail.email).toBe(saveRequest.email)
+    expect(doctorByEmail.password).toBe(saveRequest.hashedPassword)
+    expect(doctorByEmail.createdAt).toBeTruthy()
+  })
 })
