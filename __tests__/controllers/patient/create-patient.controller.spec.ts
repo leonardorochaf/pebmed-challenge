@@ -110,4 +110,14 @@ describe('Create Patient Controller', () => {
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: 'Esse email já está em uso' })
   })
+
+  test('Should 500 and return server error message if CreatePatientUsecase throws', async () => {
+    const { sut, createPatientUsecaseStub } = sutFactory()
+    jest.spyOn(createPatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
