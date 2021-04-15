@@ -72,4 +72,20 @@ describe('Session Repository', () => {
     const sessionByToken = await sut.getActiveByToken('')
     expect(sessionByToken).toBeFalsy()
   })
+
+  test('Should set logoutAt atribute', async () => {
+    const sut = getCustomRepository(SessionRepository, process.env.NODE_ENV)
+    const doctorRepository = getCustomRepository(DoctorRepository, process.env.NODE_ENV)
+    const createdDoctor = await doctorRepository.createAndSave({
+      name: faker.name.findName(),
+      email: faker.internet.email(),
+      hashedPassword: faker.datatype.uuid()
+    })
+    saveRequest.doctor = createdDoctor
+    await sut.createAndSave(saveRequest)
+    const session = await sut.getActiveByToken(saveRequest.token)
+    await sut.logicalDelete(session.id)
+    const deletedSession = await sut.getActiveByToken(saveRequest.token)
+    expect(deletedSession).toBeFalsy()
+  })
 })
