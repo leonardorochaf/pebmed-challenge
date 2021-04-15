@@ -3,12 +3,17 @@ import { EntityRepository, Repository } from 'typeorm'
 
 import { Patient } from '../../models/Patient'
 import { ISavePatientRepository, SavePatientData } from './interfaces/save-patient.repository.interface'
+import { IGetPatientByEmailRepository } from './interfaces/get-patient-by-email.repository.interface'
 
 @EntityRepository(Patient)
-export class PatientRepository extends Repository<Patient> implements ISavePatientRepository {
+export class PatientRepository extends Repository<Patient> implements ISavePatientRepository, IGetPatientByEmailRepository {
   async createAndSave (params: SavePatientData): Promise<Patient> {
     const createPatient = this.create(params)
     createPatient.id = uuid()
     return await this.save(createPatient)
+  }
+
+  async getByEmail (email: string): Promise<Patient> {
+    return await this.findOne({ email })
   }
 }

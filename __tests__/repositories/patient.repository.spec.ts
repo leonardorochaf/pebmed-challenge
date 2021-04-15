@@ -1,4 +1,5 @@
 import faker from 'faker'
+import moment from 'moment'
 import { getCustomRepository } from 'typeorm'
 
 import connectionHelper from '../../src/database/connection-helper'
@@ -42,5 +43,22 @@ describe('Patient Repository', () => {
     expect(createdPatient.weight).toBe(saveRequest.weight)
     expect(createdPatient.createdAt).toBeTruthy()
     expect(createdPatient.updatedAt).toBeTruthy()
+  })
+
+  test('Should search for a patient by its email and return it if it finds one', async () => {
+    const sut = getCustomRepository(PatientRepository, process.env.NODE_ENV)
+    await sut.createAndSave(saveRequest)
+    const patientByEmail = await sut.getByEmail(saveRequest.email)
+    expect(patientByEmail).toBeTruthy()
+    expect(patientByEmail.id).toBeTruthy()
+    expect(patientByEmail.name).toBe(saveRequest.name)
+    expect(patientByEmail.phone).toBe(saveRequest.phone)
+    expect(patientByEmail.email).toBe(saveRequest.email)
+    expect(patientByEmail.birthday).toStrictEqual(moment(saveRequest.birthday).format('YYYY-MM-DD'))
+    expect(patientByEmail.gender).toBe(saveRequest.gender)
+    expect(patientByEmail.height).toBe(saveRequest.height)
+    expect(patientByEmail.weight).toBe(saveRequest.weight)
+    expect(patientByEmail.createdAt).toBeTruthy()
+    expect(patientByEmail.updatedAt).toBeTruthy()
   })
 })
