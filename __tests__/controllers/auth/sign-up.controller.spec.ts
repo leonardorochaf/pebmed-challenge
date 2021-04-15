@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import faker from 'faker'
 
 import { SignUpController } from '../../../src/controllers/auth/sign-up.controller'
+import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { ISignUpUsecase, SignUpParams } from '../../../src/usecases/auth/interfaces/sign-up.usecase.interface'
 import { serverErrorMessage } from '../../../src/utils/strings'
@@ -86,5 +87,15 @@ describe('Sign Up Controller', () => {
       email: req.body.email,
       password: req.body.password
     })
+  })
+
+  test('Should 400 and return default message if SignUpUsecase throw EmailAlreadyInUseError', async () => {
+    const { sut, createDoctorUsecaseStub } = sutFactory()
+    jest.spyOn(createDoctorUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new EmailAlreadyInUseError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Esse email já está em uso' })
   })
 })

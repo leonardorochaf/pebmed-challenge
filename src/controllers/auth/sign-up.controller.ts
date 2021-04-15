@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
+import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
 import { ISignUpUsecase } from '../../usecases/auth/interfaces/sign-up.usecase.interface'
 
 import { serverErrorMessage } from '../../utils/strings'
@@ -22,6 +23,10 @@ export class SignUpController {
       const { name, email, password } = req.body
       await this.signUpUsecase.execute({ name, email, password })
     } catch (e) {
+      if (e instanceof EmailAlreadyInUseError) {
+        return res.status(400).json({ error: e.message })
+      }
+
       return res.status(500).json({ error: serverErrorMessage })
     }
   }
