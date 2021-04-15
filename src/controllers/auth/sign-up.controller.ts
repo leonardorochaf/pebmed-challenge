@@ -22,6 +22,8 @@ export class SignUpController {
 
       const { name, email, password } = req.body
       await this.signUpUsecase.execute({ name, email, password })
+
+      return res.status(201).json()
     } catch (e) {
       if (e instanceof EmailAlreadyInUseError) {
         return res.status(400).json({ error: e.message })
