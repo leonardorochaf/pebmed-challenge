@@ -84,4 +84,13 @@ describe('Login Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow(InvalidCredentialsError)
   })
+
+  test('Should throw if HasherComparer throws', async () => {
+    const { sut, hasherComparerStub } = sutFactory()
+    jest.spyOn(hasherComparerStub, 'compare').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
