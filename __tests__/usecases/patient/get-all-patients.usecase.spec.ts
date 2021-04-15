@@ -48,4 +48,14 @@ describe('Get All Patients Usecase', () => {
     const promise = sut.execute()
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned patients', async () => {
+    const { sut } = sutFactory()
+    const allPatients = await sut.execute()
+    allPatients.forEach(patient => {
+      expect(patient).not.toHaveProperty('createdAt')
+      expect(patient).not.toHaveProperty('updatedAt')
+      expect(patient).not.toHaveProperty('deletedAt')
+    })
+  })
 })

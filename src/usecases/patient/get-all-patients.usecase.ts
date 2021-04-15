@@ -6,8 +6,9 @@ export class GetAllPatientsUsecase implements IGetAllPatientsUsecase {
   constructor (private readonly getAllPatientsRepository: IGetAllPatientsRepository) { }
 
   async execute (): Promise<DefaultPatientResponse[]> {
-    await this.getAllPatientsRepository.getAll()
+    const allPatients = await this.getAllPatientsRepository.getAll()
 
-    return Promise.resolve(null)
+    const response = allPatients.map(({ createdAt, updatedAt, deletedAt, ...response }) => response)
+    return response
   }
 }
