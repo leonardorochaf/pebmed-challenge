@@ -41,5 +41,14 @@ describe('Patient Routes', () => {
           expect(res.body.weight).toBe(80)
         })
     })
+
+    test('Should 400 if validation fails', async () => {
+      await request(app)
+        .post(`${apiPath}/patients`)
+        .send({})
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
   })
 })
