@@ -33,4 +33,13 @@ describe('Validator', () => {
     const response = await sut.validate(mockedData, SignUpValidationModel, false)
     expect(response).toEqual(new ValidationError([]))
   })
+
+  test('Should throw if ClassValidator throws', async () => {
+    const { sut } = makeSut()
+    jest.spyOn(classValidator, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.validate({}, SignUpValidationModel, false)
+    await expect(promise).rejects.toThrow()
+  })
 })
