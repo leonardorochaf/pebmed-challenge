@@ -3,7 +3,9 @@ import { Request, Response } from 'express'
 import faker from 'faker'
 
 import { LoginController } from '../../../src/controllers/auth/login.controller'
+import { LoginResponse } from '../../../src/dtos/auth/login-response'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { ILoginUsecase, LoginUsecaseParams } from '../../../src/usecases/auth/interfaces/login.usecase.interface'
 import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 import { LoginValidationModel } from '../../../src/validation/validation-models/auth/login-validation.model'
@@ -19,23 +21,36 @@ const res: Response = {} as Response
 res.status = jest.fn().mockReturnValue(res)
 res.json = jest.fn().mockReturnValue(res)
 
+const mockResponse = {
+  token: faker.datatype.uuid()
+}
+
 class ValidatorStub implements IValidator {
   async validate (data: any, validationModel: any, skipMissingProperties: boolean): Promise<ValidationError> {
     return null
   }
 }
 
+class LoginUsecaseStub implements ILoginUsecase {
+  async execute (params: LoginUsecaseParams): Promise<LoginResponse> {
+    return mockResponse
+  }
+}
+
 type SutTypes = {
   sut: LoginController
   validatorStub: ValidatorStub
+  loginUsecaseStub: LoginUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const loginUsecaseStub = new LoginUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new LoginController(validatorStub)
+  const sut = new LoginController(validatorStub, loginUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    loginUsecaseStub
   }
 }
 
@@ -63,5 +78,12 @@ describe('Login Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call LoginUsecase with correct values', async () => {
+    const { sut, loginUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(loginUsecaseStub, 'execute')
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith({ email: req.body.email, password: req.body.password })
   })
 })
