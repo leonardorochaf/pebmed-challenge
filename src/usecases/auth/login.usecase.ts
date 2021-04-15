@@ -16,7 +16,10 @@ export class LoginUsecase implements ILoginUsecase {
       throw new InvalidCredentialsError()
     }
 
-    await this.hasherComparer.compare(params.password, doctorByEmail.password)
+    const isCorrectPassword = await this.hasherComparer.compare(params.password, doctorByEmail.password)
+    if (!isCorrectPassword) {
+      throw new InvalidCredentialsError()
+    }
 
     return Promise.resolve(null)
   }
