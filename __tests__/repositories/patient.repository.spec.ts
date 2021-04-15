@@ -61,4 +61,10 @@ describe('Patient Repository', () => {
     expect(patientByEmail.createdAt).toBeTruthy()
     expect(patientByEmail.updatedAt).toBeTruthy()
   })
+
+  test('Should return null if theres no patient with given email', async () => {
+    const sut = getCustomRepository(PatientRepository, process.env.NODE_ENV)
+    const patientByEmail = await sut.getByEmail('invalid_email')
+    expect(patientByEmail).toBeFalsy()
+  })
 })
