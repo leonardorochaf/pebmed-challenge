@@ -85,4 +85,11 @@ describe('Patient Repository', () => {
     expect(allPatients[0].createdAt).toBeTruthy()
     expect(allPatients[0].updatedAt).toBeTruthy()
   })
+
+  test('Should return an empty array if theres no patients in the database', async () => {
+    const sut = getCustomRepository(PatientRepository, process.env.NODE_ENV)
+    const allPatients = await sut.getAll()
+    expect(allPatients).toHaveLength(0)
+    expect(allPatients).toEqual([])
+  })
 })
