@@ -9,7 +9,9 @@ export class GetAllPatientsController {
 
   async handle (req: Request, res: Response) {
     try {
-      await this.getAllPatientsUsecase.execute()
+      const allPatients = await this.getAllPatientsUsecase.execute()
+
+      return res.status(200).json(allPatients)
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }
