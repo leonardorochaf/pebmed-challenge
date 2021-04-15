@@ -83,5 +83,14 @@ describe('Auth Routes', () => {
           expect(res.body).toHaveProperty('token')
         })
     })
+
+    test('Should 400 if validation fails', async () => {
+      await request(app)
+        .post(`${apiPath}/auth/login`)
+        .send({})
+        .expect(400).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
   })
 })
