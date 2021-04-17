@@ -1,4 +1,5 @@
 import faker from 'faker'
+import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { Patient } from '../../../src/models/Patient'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { GetPatientByIdUsecase } from '../../../src/usecases/patient/get-patient-by-id.usecase'
@@ -47,5 +48,12 @@ describe('Get Patient By Id Usecase', () => {
     const getByIdSpy = jest.spyOn(getPatientByIdRepositoryStub, 'getById')
     await sut.execute(mockRequestId)
     expect(getByIdSpy).toHaveBeenCalledWith(mockRequestId)
+  })
+
+  test('Should throw PatientNotFoundError if GetPatientByIdRepository returns null', async () => {
+    const { sut, getPatientByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByIdRepositoryStub, 'getById').mockReturnValueOnce(Promise.resolve(null))
+    const promise = sut.execute(mockRequestId)
+    await expect(promise).rejects.toThrow(PatientNotFoundError)
   })
 })
