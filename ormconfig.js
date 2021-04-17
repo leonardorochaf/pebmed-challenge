@@ -22,7 +22,7 @@ module.exports = [
     type: 'mysql',
     host: 'localhost',
     username: 'root',
-    password: 'root',
+    password: '123456',
     database: 'pebmed-test',
     dropSchema: true,
     migrationsRun: true,
