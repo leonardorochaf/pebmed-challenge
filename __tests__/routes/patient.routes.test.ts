@@ -138,5 +138,13 @@ describe('Patient Routes', () => {
           expect(res.body.weight).toBe(80)
         })
     })
+
+    test('Should 404 if patient not found', async () => {
+      await request(app)
+        .get(`${apiPath}/patients/1`)
+        .expect(404).then((res) => {
+          expect(res.body).toHaveProperty('error')
+        })
+    })
   })
 })
