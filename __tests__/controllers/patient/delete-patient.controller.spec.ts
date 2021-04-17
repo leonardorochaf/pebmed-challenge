@@ -62,4 +62,11 @@ describe('Delete Patient Controller', () => {
     expect(res.status).toHaveBeenLastCalledWith(500)
     expect(res.json).toHaveBeenLastCalledWith({ error: serverErrorMessage })
   })
+
+  test('Should 204 on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(204)
+    expect(res.json).toHaveBeenLastCalledWith()
+  })
 })

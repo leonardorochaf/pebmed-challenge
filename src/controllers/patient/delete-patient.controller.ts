@@ -11,6 +11,8 @@ export class DeletePatientController {
   async handle (req: Request, res: Response) {
     try {
       await this.deletePatientUsecase.execute(req.params.id)
+
+      return res.status(204).json()
     } catch (e) {
       if (e instanceof PatientNotFoundError) {
         return res.status(404).json({ error: e.message })
