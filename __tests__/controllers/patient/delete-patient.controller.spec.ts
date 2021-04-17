@@ -5,6 +5,7 @@ import faker from 'faker'
 import { DeletePatientController } from '../../../src/controllers/patient/delete-patient.controller'
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { IDeletePatientUsecase } from '../../../src/usecases/patient/interface/delete-patient.usecase.interface'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   params: {
@@ -50,5 +51,15 @@ describe('Delete Patient Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenLastCalledWith(404)
     expect(res.json).toHaveBeenLastCalledWith({ error: 'Paciente não encontrado' })
+  })
+
+  test('Should 500 and return server erorr message if DeletePatientUsecase throws', async () => {
+    const { sut, deletePatientUsecaseStub } = sutFactory()
+    jest.spyOn(deletePatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(500)
+    expect(res.json).toHaveBeenLastCalledWith({ error: serverErrorMessage })
   })
 })
