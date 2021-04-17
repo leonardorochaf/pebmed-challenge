@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import faker from 'faker'
 
 import { DeletePatientController } from '../../../src/controllers/patient/delete-patient.controller'
+import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { IDeletePatientUsecase } from '../../../src/usecases/patient/interface/delete-patient.usecase.interface'
 
 const req: Request = {
@@ -39,5 +40,15 @@ describe('Delete Patient Controller', () => {
     const executeSpy = jest.spyOn(deletePatientUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.id)
+  })
+
+  test('Should 404 and return default message if DeletePatientUsecase throw PatientNotFoundError', async () => {
+    const { sut, deletePatientUsecaseStub } = sutFactory()
+    jest.spyOn(deletePatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new PatientNotFoundError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(404)
+    expect(res.json).toHaveBeenLastCalledWith({ error: 'Paciente não encontrado' })
   })
 })
