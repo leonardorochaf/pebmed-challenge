@@ -10,7 +10,8 @@ export class GetPatientByIdController {
 
   async handle (req: Request, res: Response) {
     try {
-      await this.getPatientByIdUsecase.execute(req.params.id)
+      const patientById = await this.getPatientByIdUsecase.execute(req.params.id)
+      return res.status(200).json(patientById)
     } catch (e) {
       if (e instanceof PatientNotFoundError) {
         return res.status(404).json({ error: e.message })
