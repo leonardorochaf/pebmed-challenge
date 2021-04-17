@@ -1,5 +1,5 @@
 import faker from 'faker'
-import { InvalidCredentialsError } from '../../../src/errors/InvalidCredentialsError'
+import { InvalidCredentialsError } from '../../../src/errors/invalid-credentials-error'
 import { Doctor } from '../../../src/models/Doctor'
 import { IGetDoctorByEmailRepository } from '../../../src/repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
 import { ISaveSessionRepository, SaveSessionData } from '../../../src/repositories/session/interfaces/save-session.repository.interface'

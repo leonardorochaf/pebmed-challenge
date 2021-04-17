@@ -4,7 +4,7 @@ import faker from 'faker'
 
 import { LoginController } from '../../../src/controllers/auth/login.controller'
 import { LoginResponse } from '../../../src/dtos/auth/login-response'
-import { InvalidCredentialsError } from '../../../src/errors/InvalidCredentialsError'
+import { InvalidCredentialsError } from '../../../src/errors/invalid-credentials-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { ILoginUsecase, LoginUsecaseParams } from '../../../src/usecases/auth/interfaces/login.usecase.interface'
 import { serverErrorMessage } from '../../../src/utils/strings'

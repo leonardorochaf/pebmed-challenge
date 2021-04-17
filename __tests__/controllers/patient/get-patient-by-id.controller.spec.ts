@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { GetPatientByIdController } from '../../../src/controllers/patient/get-patient-by-id.controller'
 import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patient-response'
+import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { IGetPatientByIdUsecase } from '../../../src/usecases/patient/interface/get-patient-by-id.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
 
@@ -54,5 +55,15 @@ describe('Get Patient By Id Controller', () => {
     const executeSpy = jest.spyOn(getPatientByIdUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.id)
+  })
+
+  test('Should 404 and return default message if GetPatientByIdUsecase throw PatientNotFoundError', async () => {
+    const { sut, getPatientByIdUsecaseStub } = sutFactory()
+    jest.spyOn(getPatientByIdUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new PatientNotFoundError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(404)
+    expect(res.json).toHaveBeenLastCalledWith({ error: 'Paciente não encontrado' })
   })
 })

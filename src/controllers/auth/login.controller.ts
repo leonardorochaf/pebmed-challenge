@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
-import { InvalidCredentialsError } from '../../errors/InvalidCredentialsError'
+import { InvalidCredentialsError } from '../../errors/invalid-credentials-error'
 import { ILoginUsecase } from '../../usecases/auth/interfaces/login.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'

@@ -1,5 +1,5 @@
 import { LoginResponse } from '../../dtos/auth/login-response'
-import { InvalidCredentialsError } from '../../errors/InvalidCredentialsError'
+import { InvalidCredentialsError } from '../../errors/invalid-credentials-error'
 import { IGetDoctorByEmailRepository } from '../../repositories/doctor/interfaces/get-doctor-by-email.repository.interface'
 import { ISaveSessionRepository } from '../../repositories/session/interfaces/save-session.repository.interface'
 import { IHasherComparer } from '../../services/cryptography/interfaces/hasher-comparer.interface'
