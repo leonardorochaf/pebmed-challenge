@@ -7,6 +7,7 @@ import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patien
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { IGetPatientByIdUsecase } from '../../../src/usecases/patient/interface/get-patient-by-id.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   params: {
@@ -65,5 +66,22 @@ describe('Get Patient By Id Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenLastCalledWith(404)
     expect(res.json).toHaveBeenLastCalledWith({ error: 'Paciente não encontrado' })
+  })
+
+  test('Should 500 and return server erorr message if GetPatientByIdUsecase throws', async () => {
+    const { sut, getPatientByIdUsecaseStub } = sutFactory()
+    jest.spyOn(getPatientByIdUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(500)
+    expect(res.json).toHaveBeenLastCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should 200 and return patient on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenLastCalledWith(200)
+    expect(res.json).toHaveBeenLastCalledWith(mockGetPatientByIdUsecaseResponse)
   })
 })

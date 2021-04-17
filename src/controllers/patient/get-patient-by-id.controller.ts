@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 
 import { PatientNotFoundError } from '../../errors/patient-not-found-error'
 import { IGetPatientByIdUsecase } from '../../usecases/patient/interface/get-patient-by-id.usecase.interface'
+import { serverErrorMessage } from '../../utils/strings'
 
 export class GetPatientByIdController {
   constructor (private readonly getPatientByIdUsecase: IGetPatientByIdUsecase) { }
@@ -14,6 +15,7 @@ export class GetPatientByIdController {
       if (e instanceof PatientNotFoundError) {
         return res.status(404).json({ error: e.message })
       }
+      return res.status(500).json({ error: serverErrorMessage })
     }
   }
 }
