@@ -12,6 +12,7 @@ export class GetPatientByIdUsecase implements IGetPatientByIdUsecase {
       throw new PatientNotFoundError()
     }
 
-    return Promise.resolve(null)
+    const { createdAt, updatedAt, deletedAt, ...response } = patientById
+    return response
   }
 }
