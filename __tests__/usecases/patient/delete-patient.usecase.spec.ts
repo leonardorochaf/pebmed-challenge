@@ -80,4 +80,13 @@ describe('Delete Patient Usecase', () => {
     await sut.execute(mockRequestId)
     expect(logicalDeleteSpy).toHaveBeenCalledWith(mockRequestId)
   })
+
+  test('Should throw if GetPatientBDeletePatientRepositoryyIdRepository throws', async () => {
+    const { sut, deletePatientRepositoryStub } = sutFactory()
+    jest.spyOn(deletePatientRepositoryStub, 'logicalDelete').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId)
+    expect(promise).rejects.toThrow()
+  })
 })
