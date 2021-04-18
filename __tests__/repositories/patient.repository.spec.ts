@@ -117,4 +117,24 @@ describe('Patient Repository', () => {
     const deletedPatient = await sut.getAll()
     expect(deletedPatient).toEqual([])
   })
+
+  test('Should update a patient and return it', async () => {
+    const sut = getCustomRepository(PatientRepository, process.env.NODE_ENV)
+    const updatedName = faker.name.findName()
+    const updatedGender = Gender.NAOINFORMADO
+    const updatedWeight = 120
+    const savedPatient = await sut.createAndSave(saveRequest)
+    const upadtedPatient = await sut.updateAndReload(savedPatient.id, { name: updatedName, gender: updatedGender, weight: updatedWeight })
+    expect(upadtedPatient).toBeTruthy()
+    expect(upadtedPatient.id).toBeTruthy()
+    expect(upadtedPatient.name).toBe(updatedName)
+    expect(upadtedPatient.phone).toBe(saveRequest.phone)
+    expect(upadtedPatient.email).toBe(saveRequest.email)
+    expect(upadtedPatient.birthday).toBe(moment(saveRequest.birthday).format('YYYY-MM-DD'))
+    expect(upadtedPatient.gender).toBe(updatedGender)
+    expect(upadtedPatient.height).toBe(saveRequest.height)
+    expect(upadtedPatient.weight).toBe(updatedWeight)
+    expect(upadtedPatient.createdAt).toBeTruthy()
+    expect(upadtedPatient.updatedAt).toBeTruthy()
+  })
 })
