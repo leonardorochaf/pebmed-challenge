@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { UpdatePatientController } from '../../../src/controllers/patient/update-patient.controller'
 import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patient-response'
+import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { IUpdatePatientUsecase, UpdatePatientParams } from '../../../src/usecases/patient/interface/update-patient.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -101,5 +102,15 @@ describe('Update Patient Controller', () => {
     const executeSpy = jest.spyOn(updatePatientUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.id, req.body)
+  })
+
+  test('Should 400 and return default message if UpdatePatientUsecase throw EmailAlreadyInUseError', async () => {
+    const { sut, updatePatientUsecaseStub } = sutFactory()
+    jest.spyOn(updatePatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new EmailAlreadyInUseError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Esse email já está em uso' })
   })
 })

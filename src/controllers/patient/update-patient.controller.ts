@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
 import { IUpdatePatientUsecase } from '../../usecases/patient/interface/update-patient.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -22,6 +23,9 @@ export class UpdatePatientController {
       const { name, phone, email, birthday, gender, height, weight } = req.body
       await this.updatePatientUsecase.execute(req.params.id, { name, phone, email, birthday, gender, height, weight })
     } catch (e) {
+      if (e instanceof EmailAlreadyInUseError) {
+        return res.status(400).json({ error: e.message })
+      }
       return res.status(500).json({ error: serverErrorMessage })
     }
   }
