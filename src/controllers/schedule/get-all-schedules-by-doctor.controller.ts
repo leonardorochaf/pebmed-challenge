@@ -10,7 +10,9 @@ export class GetAllSchedulesByDoctorController {
   async handle (req: Request, res: Response) {
     try {
       const token = String(req.headers['x-auth-token'])
-      await this.getAllSchedulesByDoctorUsecase.execute(token)
+      const allSchedules = await this.getAllSchedulesByDoctorUsecase.execute(token)
+
+      return res.status(200).json(allSchedules)
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }

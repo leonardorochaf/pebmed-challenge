@@ -18,7 +18,7 @@ const res: Response = {} as Response
 res.status = jest.fn().mockReturnValue(res)
 res.json = jest.fn().mockReturnValue(res)
 
-const mockResponse = {
+const mockResponse = [{
   id: faker.datatype.uuid(),
   time: faker.date.future(),
   patient: {
@@ -31,13 +31,11 @@ const mockResponse = {
     height: faker.datatype.float({ min: 0, max: 2.5 }),
     weight: faker.datatype.float({ min: 0, max: 100 })
   }
-}
+}]
 
 class GetAllSchedulesByDoctorUsecaseStub implements IGetAllSchedulesByDoctorUsecase {
   async execute (token: string): Promise<DefaultScheduleResponse[]> {
-    return [
-      mockResponse
-    ]
+    return mockResponse
   }
 }
 
@@ -72,5 +70,12 @@ describe('Get All Schedules By Doctor Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Shoul 200 on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(mockResponse)
   })
 })
