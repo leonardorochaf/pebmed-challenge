@@ -33,4 +33,13 @@ describe('Get All Schedules By Doctor Usecase', () => {
     await sut.execute(mockRequestToken)
     expect(decodeSpy).toHaveBeenCalledWith(mockRequestToken)
   })
+
+  test('Should throw if DecodeToken throws', async () => {
+    const { sut, decodeTokenStub } = sutFactory()
+    jest.spyOn(decodeTokenStub, 'decode').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockDecodeTokenResponse)
+    await expect(promise).rejects.toThrow()
+  })
 })
