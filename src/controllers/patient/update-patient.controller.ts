@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 
 import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
+import { PatientNotFoundError } from '../../errors/patient-not-found-error'
 import { IUpdatePatientUsecase } from '../../usecases/patient/interface/update-patient.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -23,6 +24,9 @@ export class UpdatePatientController {
       const { name, phone, email, birthday, gender, height, weight } = req.body
       await this.updatePatientUsecase.execute(req.params.id, { name, phone, email, birthday, gender, height, weight })
     } catch (e) {
+      if (e instanceof PatientNotFoundError) {
+        return res.status(404).json({ error: e.message })
+      }
       if (e instanceof EmailAlreadyInUseError) {
         return res.status(400).json({ error: e.message })
       }
