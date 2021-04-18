@@ -1,4 +1,5 @@
 import { DefaultPatientResponse } from '../../dtos/patient/default-patient-response'
+import { EmailAlreadyInUseError } from '../../errors/email-already-in-use-error'
 import { PatientNotFoundError } from '../../errors/patient-not-found-error'
 import { IGetPatientByEmailRepository } from '../../repositories/patient/interfaces/get-patient-by-email.repository.interface'
 import { IGetPatientByIdRepository } from '../../repositories/patient/interfaces/get-patient-by-id.repository.interface'
@@ -17,7 +18,10 @@ export class UpdatePatientUsecase implements IUpdatePatientUsecase {
     }
 
     if (params.email) {
-      await this.getPatientByEmailRepository.getByEmail(params.email)
+      const patientByEmail = await this.getPatientByEmailRepository.getByEmail(params.email)
+      if (patientByEmail) {
+        throw new EmailAlreadyInUseError()
+      }
     }
 
     return Promise.resolve(null)

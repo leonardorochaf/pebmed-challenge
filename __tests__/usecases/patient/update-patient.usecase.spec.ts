@@ -1,5 +1,6 @@
 import faker from 'faker'
 
+import { EmailAlreadyInUseError } from '../../../src/errors/email-already-in-use-error'
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { Patient } from '../../../src/models/Patient'
 import { IGetPatientByEmailRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-email.repository.interface'
@@ -99,5 +100,12 @@ describe('Update Patient Usecase', () => {
     const getByEmailSpy = jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail')
     await sut.execute(mockRequestId, mockRequest)
     expect(getByEmailSpy).toHaveBeenCalledWith(mockRequest.email)
+  })
+
+  test('Should throw EmailAlreadyInUseError if GetPatientByEmail returns a patient', async () => {
+    const { sut, getPatientByEmailRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail').mockReturnValueOnce(Promise.resolve(mockResponse))
+    const promise = sut.execute(mockRequestId, mockRequest)
+    await expect(promise).rejects.toThrow(EmailAlreadyInUseError)
   })
 })
