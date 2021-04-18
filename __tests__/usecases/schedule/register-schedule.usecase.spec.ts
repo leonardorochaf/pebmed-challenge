@@ -1,4 +1,5 @@
 import faker from 'faker'
+import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
 import { Patient } from '../../../src/models/Patient'
 
@@ -105,5 +106,12 @@ describe('Register Schedule Usecase', () => {
     const getByIdSpy = jest.spyOn(getPatientByIdRepositoryStub, 'getById')
     await sut.execute(mockRequest)
     expect(getByIdSpy).toHaveBeenCalledWith(mockRequest.patientId)
+  })
+
+  test('Should throw PatientNotFoundError if GetPatientById dont return a patient', async () => {
+    const { sut, getPatientByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByIdRepositoryStub, 'getById').mockReturnValueOnce(Promise.resolve(null))
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow(PatientNotFoundError)
   })
 })

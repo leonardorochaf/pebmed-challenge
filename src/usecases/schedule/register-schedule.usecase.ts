@@ -1,4 +1,5 @@
 import { DefaultScheduleResponse } from '../../dtos/schedule/default-schedule-response'
+import { PatientNotFoundError } from '../../errors/patient-not-found-error'
 import { ScheduleTimeAlreadyTakenError } from '../../errors/schedule-time-already-taken-error'
 import { IGetPatientByIdRepository } from '../../repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { IGetScheduleByTimeRepository } from '../../repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
@@ -16,7 +17,10 @@ export class RegisterScheduleUsecase implements IRegisterScheduleUsecase {
       throw new ScheduleTimeAlreadyTakenError()
     }
 
-    await this.getPatientByIdRepository.getById(params.patientId)
+    const patientById = await this.getPatientByIdRepository.getById(params.patientId)
+    if (!patientById) {
+      throw new PatientNotFoundError()
+    }
 
     return Promise.resolve(null)
   }
