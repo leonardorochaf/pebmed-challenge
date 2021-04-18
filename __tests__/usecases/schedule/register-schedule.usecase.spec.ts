@@ -1,11 +1,12 @@
 import faker from 'faker'
+
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
 import { Patient } from '../../../src/models/Patient'
-
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { IGetScheduleByTimeRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
+import { ISaveScheduleRepository, SaveScheduleParams } from '../../../src/repositories/schedule/interfaces/save-schedule.repository.interface'
 import { IDecodeToken } from '../../../src/services/jwt/interfaces/decode-token.interface'
 import { RegisterScheduleUsecase } from '../../../src/usecases/schedule/register-schedule.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -69,23 +70,32 @@ class DecodeTokenStub implements IDecodeToken {
   }
 }
 
+class SaveScheduleRepositoryStub implements ISaveScheduleRepository {
+  async createAndSave (params: SaveScheduleParams): Promise<Schedule> {
+    return mockSaveScheduleRepositoryResponse
+  }
+}
+
 type SutTypes = {
   sut: RegisterScheduleUsecase
   getScheduleByTimeRepositoryStub: GetScheduleByTimeRepositoryStub
   getPatientByIdRepositoryStub: GetPatientByIdRepositoryStub
   decodeTokenStub: DecodeTokenStub
+  saveScheduleRepositoryStub: SaveScheduleRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const saveScheduleRepositoryStub = new SaveScheduleRepositoryStub()
   const decodeTokenStub = new DecodeTokenStub()
   const getPatientByIdRepositoryStub = new GetPatientByIdRepositoryStub()
   const getScheduleByTimeRepositoryStub = new GetScheduleByTimeRepositoryStub()
-  const sut = new RegisterScheduleUsecase(getScheduleByTimeRepositoryStub, getPatientByIdRepositoryStub, decodeTokenStub)
+  const sut = new RegisterScheduleUsecase(getScheduleByTimeRepositoryStub, getPatientByIdRepositoryStub, decodeTokenStub, saveScheduleRepositoryStub)
   return {
     sut,
     getScheduleByTimeRepositoryStub,
     getPatientByIdRepositoryStub,
-    decodeTokenStub
+    decodeTokenStub,
+    saveScheduleRepositoryStub
   }
 }
 
@@ -150,5 +160,12 @@ describe('Register Schedule Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call SaveScheduleRepository with correct values', async () => {
+    const { sut, saveScheduleRepositoryStub } = sutFactory()
+    const saveSpy = jest.spyOn(saveScheduleRepositoryStub, 'createAndSave')
+    await sut.execute(mockRequest)
+    expect(saveSpy).toHaveBeenCalledWith({ time: mockRequest.time, patientId: mockRequest.patientId, doctorId: mockDecodeTokenResponse })
   })
 })
