@@ -12,7 +12,16 @@ export class GetAllSchedulesByDoctorUsecase implements IGetAllSchedulesByDoctorU
   async execute (token: string): Promise<DefaultScheduleResponse[]> {
     const doctorId = await this.decodeToken.decode(token)
 
-    await this.getAllSchedulesByDoctorRepository.getAllByDoctor(doctorId)
-    return Promise.resolve(null)
+    const allSchedules = await this.getAllSchedulesByDoctorRepository.getAllByDoctor(doctorId)
+
+    const response = allSchedules.map(({ createdAt, updatedAt, doctor, ...response }) => {
+      delete response.patient.createdAt
+      delete response.patient.updatedAt
+      delete response.patient.deletedAt
+
+      return response
+    })
+
+    return response
   }
 }

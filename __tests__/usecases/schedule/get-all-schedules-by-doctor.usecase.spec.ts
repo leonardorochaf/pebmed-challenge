@@ -92,4 +92,15 @@ describe('Get All Schedules By Doctor Usecase', () => {
     const promise = sut.execute(mockRequestToken)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned schedules', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequestToken)
+    expect(response[0]).not.toHaveProperty('createdAt')
+    expect(response[0]).not.toHaveProperty('updatedAt')
+    expect(response[0]).not.toHaveProperty('doctor')
+    expect(mockResponse[0].patient).not.toHaveProperty('createdAt')
+    expect(mockResponse[0].patient).not.toHaveProperty('updatedAt')
+    expect(mockResponse[0].patient).not.toHaveProperty('deletedAt')
+  })
 })
