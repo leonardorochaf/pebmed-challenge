@@ -3,7 +3,10 @@ import { Request, Response } from 'express'
 import faker from 'faker'
 
 import { RegisterScheduleController } from '../../../src/controllers/schedule/register-schedule.controller'
+import { DefaultScheduleResponse } from '../../../src/dtos/schedule/default-schedule-response'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { IRegisterScheduleUsecase, RegisterScheduleParams } from '../../../src/usecases/schedule/interfaces/register-schedule.usecase.interface'
+import { Gender } from '../../../src/utils/gender-enum'
 import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 
@@ -19,27 +22,51 @@ const req: Request = {
   }
 } as unknown as Request
 
+const res: Response = {} as Response
+res.status = jest.fn().mockReturnValue(res)
+res.json = jest.fn().mockReturnValue(res)
+
+const mockRegisterScheduleUsecaseResponse = {
+  id: faker.datatype.uuid(),
+  time: faker.date.future(),
+  patient: {
+    id: faker.datatype.uuid(),
+    name: faker.name.findName(),
+    phone: faker.phone.phoneNumber(),
+    email: faker.internet.email(),
+    birthday: faker.date.past(),
+    gender: Gender.MASCULINO,
+    height: faker.datatype.float({ min: 0, max: 2.5 }),
+    weight: faker.datatype.float({ min: 0, max: 100 })
+  }
+}
+
 class ValidatorStub implements IValidator {
   async validate (data: any, validationModel: any, skipMissingProperties: boolean): Promise<ValidationError> {
     return null
   }
 }
 
-const res: Response = {} as Response
-res.status = jest.fn().mockReturnValue(res)
-res.json = jest.fn().mockReturnValue(res)
+class RegisterScheduleUsecaseStub implements IRegisterScheduleUsecase {
+  async execute (params: RegisterScheduleParams): Promise<DefaultScheduleResponse> {
+    return mockRegisterScheduleUsecaseResponse
+  }
+}
 
 type SutTypes = {
   sut: RegisterScheduleController
   validatorStub: ValidatorStub
+  registerScheduleUsecaseStub: RegisterScheduleUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const registerScheduleUsecaseStub = new RegisterScheduleUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new RegisterScheduleController(validatorStub)
+  const sut = new RegisterScheduleController(validatorStub, registerScheduleUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    registerScheduleUsecaseStub
   }
 }
 
@@ -67,5 +94,14 @@ describe('Register Schedule Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call RegisterScheduleUsecase with correct values', async () => {
+    const { sut, registerScheduleUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(registerScheduleUsecaseStub, 'execute')
+    const { time, patientId } = req.body
+    const token = String(req.headers['x-auth-token'])
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith({ time, token, patientId })
   })
 })
