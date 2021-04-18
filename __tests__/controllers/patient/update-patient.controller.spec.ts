@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { UpdatePatientController } from '../../../src/controllers/patient/update-patient.controller'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 import { UpdatePatientValidationModel } from '../../../src/validation/validation-models/patient/update-patient-validation.model'
 
@@ -52,5 +53,23 @@ describe('Update Patient Controller', () => {
     const validateSpy = jest.spyOn(validatorStub, 'validate')
     await sut.handle(req, res)
     expect(validateSpy).toHaveBeenCalledWith(req.body, UpdatePatientValidationModel, true)
+  })
+
+  test('Should 400 and return validation error messages if validation fails', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockReturnValueOnce(Promise.resolve(new ValidationError(['Email inválido'])))
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: [{ message: 'Email inválido' }] })
+  })
+
+  test('Should 500 and return server error message if validation throws', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
