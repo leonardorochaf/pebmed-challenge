@@ -114,4 +114,13 @@ describe('Register Schedule Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow(PatientNotFoundError)
   })
+
+  test('Should throw if GetPatientById throws', async () => {
+    const { sut, getPatientByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByIdRepositoryStub, 'getById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
