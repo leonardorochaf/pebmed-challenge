@@ -83,4 +83,13 @@ describe('Get All Schedules By Doctor Usecase', () => {
     await sut.execute(mockRequestToken)
     expect(getAllByDoctorSpy).toHaveBeenCalledWith(mockDecodeTokenResponse)
   })
+
+  test('Should throw if DecodeToken throws', async () => {
+    const { sut, getAllSchedulesByDoctorRepositoryStub } = sutFactory()
+    jest.spyOn(getAllSchedulesByDoctorRepositoryStub, 'getAllByDoctor').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestToken)
+    await expect(promise).rejects.toThrow()
+  })
 })
