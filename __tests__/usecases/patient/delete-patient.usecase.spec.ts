@@ -2,6 +2,7 @@ import faker from 'faker'
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 
 import { Patient } from '../../../src/models/Patient'
+import { IDeletePatientRepository } from '../../../src/repositories/patient/interfaces/delete-patient.repository.interface'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { DeletePatientUsecase } from '../../../src/usecases/patient/delete-patient.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -28,17 +29,24 @@ class GetPatientByIdRepositoryStub implements IGetPatientByIdRepository {
   }
 }
 
+class DeletePatientRepositoryStub implements IDeletePatientRepository {
+  async logicalDelete (patientId: string): Promise<void> { }
+}
+
 type SutTypes = {
   sut: DeletePatientUsecase
   getPatientByIdRepositoryStub: GetPatientByIdRepositoryStub
+  deletePatientRepositoryStub: DeletePatientRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const deletePatientRepositoryStub = new DeletePatientRepositoryStub()
   const getPatientByIdRepositoryStub = new GetPatientByIdRepositoryStub()
-  const sut = new DeletePatientUsecase(getPatientByIdRepositoryStub)
+  const sut = new DeletePatientUsecase(getPatientByIdRepositoryStub, deletePatientRepositoryStub)
   return {
     sut,
-    getPatientByIdRepositoryStub
+    getPatientByIdRepositoryStub,
+    deletePatientRepositoryStub
   }
 }
 
@@ -64,5 +72,12 @@ describe('Delete Patient Usecase', () => {
     })
     const promise = sut.execute(mockRequestId)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call DeletePatientRepository with correct id', async () => {
+    const { sut, deletePatientRepositoryStub } = sutFactory()
+    const logicalDeleteSpy = jest.spyOn(deletePatientRepositoryStub, 'logicalDelete')
+    await sut.execute(mockRequestId)
+    expect(logicalDeleteSpy).toHaveBeenCalledWith(mockRequestId)
   })
 })
