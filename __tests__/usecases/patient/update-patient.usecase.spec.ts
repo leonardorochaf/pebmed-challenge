@@ -84,7 +84,7 @@ describe('Update Patient Usecase', () => {
       throw new Error()
     })
     const promise = sut.execute(mockRequestId, mockRequest)
-    expect(promise).rejects.toThrow()
+    await expect(promise).rejects.toThrow()
   })
 
   test('Should not call GetPatientByEmailRepository if theres no email in params request', async () => {
@@ -107,5 +107,14 @@ describe('Update Patient Usecase', () => {
     jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail').mockReturnValueOnce(Promise.resolve(mockResponse))
     const promise = sut.execute(mockRequestId, mockRequest)
     await expect(promise).rejects.toThrow(EmailAlreadyInUseError)
+  })
+
+  test('Should throw if GetPatientByEmail throws', async () => {
+    const { sut, getPatientByEmailRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId, mockRequest)
+    await expect(promise).rejects.toThrow()
   })
 })
