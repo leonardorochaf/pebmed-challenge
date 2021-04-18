@@ -147,4 +147,25 @@ describe('Patient Routes', () => {
         })
     })
   })
+
+  describe('DELETE /patients/:id', () => {
+    test('Should 204 on success', async () => {
+      const repository = getConnection(process.env.NODE_ENV).getRepository(Patient)
+      await repository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        phone: '21 123456789',
+        email: 'leonardo.rocha@gmail.com',
+        birthday: '1995-03-08',
+        gender: Gender.MASCULINO,
+        height: 1.78,
+        weight: 80
+      })
+      await request(app)
+        .delete(`${apiPath}/patients/1`)
+        .expect(204).then((res) => {
+          expect(res.body).toStrictEqual({})
+        })
+    })
+  })
 })
