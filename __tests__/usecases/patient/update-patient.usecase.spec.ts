@@ -2,6 +2,7 @@ import faker from 'faker'
 
 import { PatientNotFoundError } from '../../../src/errors/patient-not-found-error'
 import { Patient } from '../../../src/models/Patient'
+import { IGetPatientByEmailRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-email.repository.interface'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { UpdatePatientUsecase } from '../../../src/usecases/patient/update-patient.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -38,17 +39,26 @@ class GetPatientByIdRepositoryStub implements IGetPatientByIdRepository {
   }
 }
 
+class GetPatientByEmailRepositoryStub implements IGetPatientByEmailRepository {
+  async getByEmail (email: string): Promise<Patient> {
+    return null
+  }
+}
+
 type SutTypes = {
   sut: UpdatePatientUsecase
   getPatientByIdRepositoryStub: GetPatientByIdRepositoryStub
+  getPatientByEmailRepositoryStub: GetPatientByEmailRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const getPatientByEmailRepositoryStub = new GetPatientByEmailRepositoryStub()
   const getPatientByIdRepositoryStub = new GetPatientByIdRepositoryStub()
-  const sut = new UpdatePatientUsecase(getPatientByIdRepositoryStub)
+  const sut = new UpdatePatientUsecase(getPatientByIdRepositoryStub, getPatientByEmailRepositoryStub)
   return {
     sut,
-    getPatientByIdRepositoryStub
+    getPatientByIdRepositoryStub,
+    getPatientByEmailRepositoryStub
   }
 }
 
@@ -74,5 +84,13 @@ describe('Update Patient Usecase', () => {
     })
     const promise = sut.execute(mockRequestId, mockRequest)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should not call GetPatientByEmailRepository if theres no email in params request', async () => {
+    const { sut, getPatientByEmailRepositoryStub } = sutFactory()
+    const { email, ...requestWithoutEmail } = mockRequest
+    const getByEmailSpy = jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail')
+    await sut.execute(mockRequestId, requestWithoutEmail)
+    expect(getByEmailSpy).not.toBeCalled()
   })
 })
