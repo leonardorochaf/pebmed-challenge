@@ -142,4 +142,13 @@ describe('Register Schedule Usecase', () => {
     await sut.execute(mockRequest)
     expect(decodeSpy).toHaveBeenCalledWith(mockRequest.token)
   })
+
+  test('Should throw if DecodeToken throws', async () => {
+    const { sut, decodeTokenStub } = sutFactory()
+    jest.spyOn(decodeTokenStub, 'decode').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
