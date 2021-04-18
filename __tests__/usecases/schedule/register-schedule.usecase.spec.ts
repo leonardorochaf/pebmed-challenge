@@ -6,6 +6,7 @@ import { Patient } from '../../../src/models/Patient'
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
 import { IGetScheduleByTimeRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
+import { IDecodeToken } from '../../../src/services/jwt/interfaces/decode-token.interface'
 import { RegisterScheduleUsecase } from '../../../src/usecases/schedule/register-schedule.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
 
@@ -36,6 +37,8 @@ const mockSaveScheduleRepositoryResponse = {
   doctor: null
 }
 
+const mockDecodeTokenResponse = faker.datatype.uuid()
+
 class GetScheduleByTimeRepositoryStub implements IGetScheduleByTimeRepository {
   async getByTime (time: Date): Promise<Schedule> {
     return null
@@ -60,20 +63,29 @@ class GetPatientByIdRepositoryStub implements IGetPatientByIdRepository {
   }
 }
 
+class DecodeTokenStub implements IDecodeToken {
+  async decode (token: string): Promise<string> {
+    return mockDecodeTokenResponse
+  }
+}
+
 type SutTypes = {
   sut: RegisterScheduleUsecase
   getScheduleByTimeRepositoryStub: GetScheduleByTimeRepositoryStub
   getPatientByIdRepositoryStub: GetPatientByIdRepositoryStub
+  decodeTokenStub: DecodeTokenStub
 }
 
 const sutFactory = (): SutTypes => {
+  const decodeTokenStub = new DecodeTokenStub()
   const getPatientByIdRepositoryStub = new GetPatientByIdRepositoryStub()
   const getScheduleByTimeRepositoryStub = new GetScheduleByTimeRepositoryStub()
-  const sut = new RegisterScheduleUsecase(getScheduleByTimeRepositoryStub, getPatientByIdRepositoryStub)
+  const sut = new RegisterScheduleUsecase(getScheduleByTimeRepositoryStub, getPatientByIdRepositoryStub, decodeTokenStub)
   return {
     sut,
     getScheduleByTimeRepositoryStub,
-    getPatientByIdRepositoryStub
+    getPatientByIdRepositoryStub,
+    decodeTokenStub
   }
 }
 
@@ -122,5 +134,12 @@ describe('Register Schedule Usecase', () => {
     })
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call DecodeToken with correct token', async () => {
+    const { sut, decodeTokenStub } = sutFactory()
+    const decodeSpy = jest.spyOn(decodeTokenStub, 'decode')
+    await sut.execute(mockRequest)
+    expect(decodeSpy).toHaveBeenCalledWith(mockRequest.token)
   })
 })
