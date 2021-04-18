@@ -5,6 +5,7 @@ import { PatientNotFoundError } from '../../../src/errors/patient-not-found-erro
 import { Patient } from '../../../src/models/Patient'
 import { IGetPatientByEmailRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-email.repository.interface'
 import { IGetPatientByIdRepository } from '../../../src/repositories/patient/interfaces/get-patient-by-id.repository.interface'
+import { IUpdatePatientRepository, UpdatePatientRepositoryParams } from '../../../src/repositories/patient/interfaces/update-patient.repository.interface'
 import { UpdatePatientUsecase } from '../../../src/usecases/patient/update-patient.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
 
@@ -46,20 +47,29 @@ class GetPatientByEmailRepositoryStub implements IGetPatientByEmailRepository {
   }
 }
 
+class UpdatePatientRepositoryStub implements IUpdatePatientRepository {
+  async updateAndReload (patientId: string, params: UpdatePatientRepositoryParams): Promise<Patient> {
+    return mockResponse
+  }
+}
+
 type SutTypes = {
   sut: UpdatePatientUsecase
   getPatientByIdRepositoryStub: GetPatientByIdRepositoryStub
   getPatientByEmailRepositoryStub: GetPatientByEmailRepositoryStub
+  updatePatientRepositoryStub: UpdatePatientRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const updatePatientRepositoryStub = new UpdatePatientRepositoryStub()
   const getPatientByEmailRepositoryStub = new GetPatientByEmailRepositoryStub()
   const getPatientByIdRepositoryStub = new GetPatientByIdRepositoryStub()
-  const sut = new UpdatePatientUsecase(getPatientByIdRepositoryStub, getPatientByEmailRepositoryStub)
+  const sut = new UpdatePatientUsecase(getPatientByIdRepositoryStub, getPatientByEmailRepositoryStub, updatePatientRepositoryStub)
   return {
     sut,
     getPatientByIdRepositoryStub,
-    getPatientByEmailRepositoryStub
+    getPatientByEmailRepositoryStub,
+    updatePatientRepositoryStub
   }
 }
 
@@ -116,5 +126,12 @@ describe('Update Patient Usecase', () => {
     })
     const promise = sut.execute(mockRequestId, mockRequest)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call UpdatePatientRepository with correct values', async () => {
+    const { sut, updatePatientRepositoryStub } = sutFactory()
+    const updateSpy = jest.spyOn(updatePatientRepositoryStub, 'updateAndReload')
+    await sut.execute(mockRequestId, mockRequest)
+    expect(updateSpy).toHaveBeenCalledWith(mockRequestId, mockRequest)
   })
 })
