@@ -67,4 +67,13 @@ describe('Register Schedule Usecase', () => {
     const promise = sut.execute(mockRequest)
     await expect(promise).rejects.toThrow(ScheduleTimeAlreadyTakenError)
   })
+
+  test('Should throw if GetScheduleByTime throws', async () => {
+    const { sut, getScheduleByTimeRepositoryStub } = sutFactory()
+    jest.spyOn(getScheduleByTimeRepositoryStub, 'getByTime').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
