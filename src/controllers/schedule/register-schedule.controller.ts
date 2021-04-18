@@ -10,6 +10,9 @@ export class RegisterScheduleController {
   ) { }
 
   async handle (req: Request, res: Response) {
-    await this.validator.validate(req.body, RegisterScheduleValidatonModel, false)
+    const validationErrors = await this.validator.validate(req.body, RegisterScheduleValidatonModel, false)
+    if (validationErrors) {
+      return res.status(400).json({ error: validationErrors.errors })
+    }
   }
 }
