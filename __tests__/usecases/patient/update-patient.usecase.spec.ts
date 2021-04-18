@@ -66,4 +66,13 @@ describe('Update Patient Usecase', () => {
     const promise = sut.execute(mockRequestId, mockRequest)
     await expect(promise).rejects.toThrow(PatientNotFoundError)
   })
+
+  test('Should throw if GetPatientByIdRepository throws', async () => {
+    const { sut, getPatientByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getPatientByIdRepositoryStub, 'getById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId, mockRequest)
+    expect(promise).rejects.toThrow()
+  })
 })
