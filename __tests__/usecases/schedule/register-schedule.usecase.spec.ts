@@ -168,4 +168,15 @@ describe('Register Schedule Usecase', () => {
     await sut.execute(mockRequest)
     expect(saveSpy).toHaveBeenCalledWith({ time: mockRequest.time, patientId: mockRequest.patientId, doctorId: mockDecodeTokenResponse })
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned schedule', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequest)
+    expect(response).not.toHaveProperty('createdAt')
+    expect(response).not.toHaveProperty('updatedAt')
+    expect(response).not.toHaveProperty('doctor')
+    expect(response.patient).not.toHaveProperty('createdAt')
+    expect(response.patient).not.toHaveProperty('updatedAt')
+    expect(response.patient).not.toHaveProperty('deletedAt')
+  })
 })

@@ -28,8 +28,11 @@ export class RegisterScheduleUsecase implements IRegisterScheduleUsecase {
 
     const doctorId = await this.decodeToken.decode(params.token)
 
-    await this.saveSchedule.createAndSave({ time: params.time, patientId: params.patientId, doctorId: doctorId })
+    const { createdAt, updatedAt, doctor, ...response } = await this.saveSchedule.createAndSave({ time: params.time, patientId: params.patientId, doctorId: doctorId })
+    delete response.patient.createdAt
+    delete response.patient.updatedAt
+    delete response.patient.deletedAt
 
-    return Promise.resolve(null)
+    return response
   }
 }
