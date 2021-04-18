@@ -115,4 +115,14 @@ describe('Register Schedule Controller', () => {
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: 'Horário para agendamento já cadastrado' })
   })
+
+  test('Should 500 and return server error message if RegisterScheduleUsecase throws', async () => {
+    const { sut, registerScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(registerScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
