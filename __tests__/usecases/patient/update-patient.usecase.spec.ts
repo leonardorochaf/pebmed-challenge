@@ -134,4 +134,12 @@ describe('Update Patient Usecase', () => {
     await sut.execute(mockRequestId, mockRequest)
     expect(updateSpy).toHaveBeenCalledWith(mockRequestId, mockRequest)
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned patient', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequestId, mockRequest)
+    expect(response).not.toHaveProperty('createdAt')
+    expect(response).not.toHaveProperty('updatedAt')
+    expect(response).not.toHaveProperty('deletedAt')
+  })
 })

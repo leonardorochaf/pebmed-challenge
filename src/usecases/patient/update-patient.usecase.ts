@@ -26,8 +26,7 @@ export class UpdatePatientUsecase implements IUpdatePatientUsecase {
       }
     }
 
-    await this.updatePatientRepository.updateAndReload(patientId, params)
-
-    return Promise.resolve(null)
+    const { createdAt, updatedAt, deletedAt, ...response } = await this.updatePatientRepository.updateAndReload(patientId, params)
+    return response
   }
 }
