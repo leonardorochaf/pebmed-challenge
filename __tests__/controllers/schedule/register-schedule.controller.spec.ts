@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { RegisterScheduleController } from '../../../src/controllers/schedule/register-schedule.controller'
 import { DefaultScheduleResponse } from '../../../src/dtos/schedule/default-schedule-response'
+import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { IRegisterScheduleUsecase, RegisterScheduleParams } from '../../../src/usecases/schedule/interfaces/register-schedule.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -103,5 +104,15 @@ describe('Register Schedule Controller', () => {
     const token = String(req.headers['x-auth-token'])
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith({ time, token, patientId })
+  })
+
+  test('Should 400 and return default message if RegisterScheduleUsecase throw ScheduleTimeAlreadyTakenError', async () => {
+    const { sut, registerScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(registerScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new ScheduleTimeAlreadyTakenError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Horário para agendamento já cadastrado' })
   })
 })

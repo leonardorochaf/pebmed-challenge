@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { ScheduleTimeAlreadyTakenError } from '../../errors/schedule-time-already-taken-error'
 import { IRegisterScheduleUsecase } from '../../usecases/schedule/interfaces/register-schedule.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -23,6 +24,9 @@ export class RegisterScheduleController {
       const token = String(req.headers['x-auth-token'])
       await this.registerScheduleUsecase.execute({ time, token, patientId })
     } catch (e) {
+      if (e instanceof ScheduleTimeAlreadyTakenError) {
+        return res.status(400).json({ error: e.message })
+      }
       return res.status(500).json({ error: serverErrorMessage })
     }
   }
