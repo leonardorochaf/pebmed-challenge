@@ -3,7 +3,10 @@ import { Request, Response } from 'express'
 import faker from 'faker'
 
 import { UpdatePatientController } from '../../../src/controllers/patient/update-patient.controller'
+import { DefaultPatientResponse } from '../../../src/dtos/patient/default-patient-response'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { IUpdatePatientUsecase, UpdatePatientParams } from '../../../src/usecases/patient/interface/update-patient.usecase.interface'
+import { Gender } from '../../../src/utils/gender-enum'
 import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 import { UpdatePatientValidationModel } from '../../../src/validation/validation-models/patient/update-patient-validation.model'
@@ -27,23 +30,43 @@ const res: Response = {} as Response
 res.status = jest.fn().mockReturnValue(res)
 res.json = jest.fn().mockReturnValue(res)
 
+const mockUpdatePatientUsecaseResponse = {
+  id: faker.datatype.uuid(),
+  name: faker.name.findName(),
+  phone: faker.phone.phoneNumber(),
+  email: faker.internet.email(),
+  birthday: faker.date.past(),
+  gender: Gender.MASCULINO,
+  height: faker.datatype.float({ min: 0, max: 2.5 }),
+  weight: faker.datatype.float({ min: 0, max: 100 })
+}
+
 class ValidatorStub implements IValidator {
   async validate (data: any, validationModel: any, skipMissingProperties: boolean): Promise<ValidationError> {
     return null
   }
 }
 
+class UpdatePatientUsecaseStub implements IUpdatePatientUsecase {
+  async execute (patientId: string, params: UpdatePatientParams): Promise<DefaultPatientResponse> {
+    return mockUpdatePatientUsecaseResponse
+  }
+}
+
 type SutTypes = {
   sut: UpdatePatientController
   validatorStub: ValidatorStub
+  updatePatientUsecaseStub: UpdatePatientUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const updatePatientUsecaseStub = new UpdatePatientUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new UpdatePatientController(validatorStub)
+  const sut = new UpdatePatientController(validatorStub, updatePatientUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    updatePatientUsecaseStub
   }
 }
 
@@ -71,5 +94,12 @@ describe('Update Patient Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call UpdatePatientUsecase with correct values', async () => {
+    const { sut, updatePatientUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(updatePatientUsecaseStub, 'execute')
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith(req.params.id, req.body)
   })
 })
