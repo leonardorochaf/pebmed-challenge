@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { RegisterScheduleController } from '../../../src/controllers/schedule/register-schedule.controller'
 import { ValidationError } from '../../../src/errors/validation-error'
+import { serverErrorMessage } from '../../../src/utils/strings'
 import { IValidator } from '../../../src/validation/interfaces/validator.interface'
 
 import { RegisterScheduleValidatonModel } from '../../../src/validation/validation-models/schedule/register-schedule-validation.model'
@@ -56,5 +57,15 @@ describe('Register Schedule Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: [{ message: 'Data inválida' }] })
+  })
+
+  test('Should 500 and return server error message if validation throws', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
