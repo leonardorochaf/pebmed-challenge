@@ -124,4 +124,14 @@ describe('Update Patient Controller', () => {
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.json).toHaveBeenCalledWith({ error: 'Paciente não encontrado' })
   })
+
+  test('Should 500 and return server error message if UpdatePatientUsecase throws', async () => {
+    const { sut, updatePatientUsecaseStub } = sutFactory()
+    jest.spyOn(updatePatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
