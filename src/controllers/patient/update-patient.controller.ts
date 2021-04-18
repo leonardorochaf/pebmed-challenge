@@ -22,7 +22,9 @@ export class UpdatePatientController {
       }
 
       const { name, phone, email, birthday, gender, height, weight } = req.body
-      await this.updatePatientUsecase.execute(req.params.id, { name, phone, email, birthday, gender, height, weight })
+      const updatedPatient = await this.updatePatientUsecase.execute(req.params.id, { name, phone, email, birthday, gender, height, weight })
+
+      return res.status(200).json(updatedPatient)
     } catch (e) {
       if (e instanceof PatientNotFoundError) {
         return res.status(404).json({ error: e.message })
