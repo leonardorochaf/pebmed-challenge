@@ -109,4 +109,12 @@ describe('Patient Repository', () => {
     expect(patientById.createdAt).toBeTruthy()
     expect(patientById.updatedAt).toBeTruthy()
   })
+
+  test('Should set all patients attributes except id and timestamps to null', async () => {
+    const sut = getCustomRepository(PatientRepository, process.env.NODE_ENV)
+    const savedPatient = await sut.createAndSave(saveRequest)
+    await sut.logicalDelete(savedPatient.id)
+    const deletedPatient = await sut.getAll()
+    expect(deletedPatient).toEqual([])
+  })
 })

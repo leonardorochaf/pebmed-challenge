@@ -6,13 +6,15 @@ import { ISavePatientRepository, SavePatientData } from './interfaces/save-patie
 import { IGetPatientByEmailRepository } from './interfaces/get-patient-by-email.repository.interface'
 import { IGetAllPatientsRepository } from './interfaces/get-all-patients.repository.interface'
 import { IGetPatientByIdRepository } from './interfaces/get-patient-by-id.repository.interface'
+import { IDeletePatientRepository } from './interfaces/delete-patient.repository.interface'
 
 @EntityRepository(Patient)
 export class PatientRepository extends Repository<Patient> implements
   ISavePatientRepository,
   IGetPatientByEmailRepository,
   IGetAllPatientsRepository,
-  IGetPatientByIdRepository {
+  IGetPatientByIdRepository,
+  IDeletePatientRepository {
   async createAndSave (params: SavePatientData): Promise<Patient> {
     const createPatient = this.create(params)
     createPatient.id = uuid()
@@ -29,5 +31,10 @@ export class PatientRepository extends Repository<Patient> implements
 
   async getById (patientId: string): Promise<Patient> {
     return await this.findOne({ id: patientId })
+  }
+
+  async logicalDelete (patientId: string): Promise<void> {
+    await this.update({ id: patientId }, { name: null, phone: null, email: null, birthday: null, gender: null, height: null, weight: null })
+    await this.softDelete(patientId)
   }
 }
