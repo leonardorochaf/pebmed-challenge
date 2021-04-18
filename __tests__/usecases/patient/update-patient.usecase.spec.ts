@@ -93,4 +93,11 @@ describe('Update Patient Usecase', () => {
     await sut.execute(mockRequestId, requestWithoutEmail)
     expect(getByEmailSpy).not.toBeCalled()
   })
+
+  test('Should call GetPatientByEmailRepository with correct email', async () => {
+    const { sut, getPatientByEmailRepositoryStub } = sutFactory()
+    const getByEmailSpy = jest.spyOn(getPatientByEmailRepositoryStub, 'getByEmail')
+    await sut.execute(mockRequestId, mockRequest)
+    expect(getByEmailSpy).toHaveBeenCalledWith(mockRequest.email)
+  })
 })

@@ -16,6 +16,10 @@ export class UpdatePatientUsecase implements IUpdatePatientUsecase {
       throw new PatientNotFoundError()
     }
 
+    if (params.email) {
+      await this.getPatientByEmailRepository.getByEmail(params.email)
+    }
+
     return Promise.resolve(null)
   }
 }
