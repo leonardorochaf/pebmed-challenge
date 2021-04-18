@@ -22,7 +22,9 @@ export class RegisterScheduleController {
 
       const { time, patientId } = req.body
       const token = String(req.headers['x-auth-token'])
-      await this.registerScheduleUsecase.execute({ time, token, patientId })
+      const createdSchedule = await this.registerScheduleUsecase.execute({ time, token, patientId })
+
+      return res.status(201).json(createdSchedule)
     } catch (e) {
       if (e instanceof ScheduleTimeAlreadyTakenError) {
         return res.status(400).json({ error: e.message })

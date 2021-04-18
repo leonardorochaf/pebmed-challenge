@@ -125,4 +125,11 @@ describe('Register Schedule Controller', () => {
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
+
+  test('Should 201 and return created schedule on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(201)
+    expect(res.json).toHaveBeenCalledWith(mockRegisterScheduleUsecaseResponse)
+  })
 })
