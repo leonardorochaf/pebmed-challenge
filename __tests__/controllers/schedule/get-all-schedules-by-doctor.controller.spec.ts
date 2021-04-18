@@ -6,6 +6,7 @@ import { GetAllSchedulesByDoctorController } from '../../../src/controllers/sche
 import { DefaultScheduleResponse } from '../../../src/dtos/schedule/default-schedule-response'
 import { IGetAllSchedulesByDoctorUsecase } from '../../../src/usecases/schedule/interfaces/get-all-schedules-by-doctor.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   headers: {
@@ -61,5 +62,15 @@ describe('Get All Schedules By Doctor Controller', () => {
     const token = String(req.headers['x-auth-token'])
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(token)
+  })
+
+  test('Shoul 500 if GetAllSchedulesByDoctorUsecase throws', async () => {
+    const { sut, getAllSchedulesByDoctorUsecaseStub } = sutFactory()
+    jest.spyOn(getAllSchedulesByDoctorUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
