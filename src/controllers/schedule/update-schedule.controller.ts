@@ -10,6 +10,9 @@ export class UpdateScheduleController {
   ) { }
 
   async handle (req: Request, res: Response) {
-    await this.validator.validate(req.body, UpdateScheduleValidatonModel, true)
+    const validationErrors = await this.validator.validate(req.body, UpdateScheduleValidatonModel, true)
+    if (validationErrors) {
+      return res.status(400).json({ error: validationErrors.errors })
+    }
   }
 }
