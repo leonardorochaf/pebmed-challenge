@@ -2,6 +2,7 @@ import faker from 'faker'
 import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 
 import { Schedule } from '../../../src/models/Schedule'
+import { IDeleteScheduleRepository } from '../../../src/repositories/schedule/interfaces/delete-schedule.repository'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
 import { DeleteScheduleUsecase } from '../../../src/usecases/schedule/delete-schedule.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -35,17 +36,24 @@ class GetScheduleByIdRepositoryStub implements IGetScheduleByIdRepository {
   }
 }
 
+class DeleteScheduleRepositoryStub implements IDeleteScheduleRepository {
+  async deleteById (scheduleId: string): Promise<void> { }
+}
+
 type SutTypes = {
   sut: DeleteScheduleUsecase
   getScheduleByIdRepositoryStub: GetScheduleByIdRepositoryStub
+  deleteScheduleRepositoryStub: DeleteScheduleRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const deleteScheduleRepositoryStub = new DeleteScheduleRepositoryStub()
   const getScheduleByIdRepositoryStub = new GetScheduleByIdRepositoryStub()
-  const sut = new DeleteScheduleUsecase(getScheduleByIdRepositoryStub)
+  const sut = new DeleteScheduleUsecase(getScheduleByIdRepositoryStub, deleteScheduleRepositoryStub)
   return {
     sut,
-    getScheduleByIdRepositoryStub
+    getScheduleByIdRepositoryStub,
+    deleteScheduleRepositoryStub
   }
 }
 
@@ -71,5 +79,12 @@ describe('Delete Schedule Usecase', () => {
     })
     const promise = sut.execute(mockRequestId)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call DeleteScheduleRepository with correct id', async () => {
+    const { sut, deleteScheduleRepositoryStub } = sutFactory()
+    const deleteByIdSpy = jest.spyOn(deleteScheduleRepositoryStub, 'deleteById')
+    await sut.execute(mockRequestId)
+    expect(deleteByIdSpy).toHaveBeenCalledWith(mockRequestId)
   })
 })
