@@ -24,7 +24,10 @@ export class UpdateScheduleUsecase implements IUpdateScheduleUsecase {
       throw new ScheduleTimeAlreadyTakenError()
     }
 
-    await this.updateScheduleRepository.updateAndReload(scheduleId, params)
-    return Promise.resolve(null)
+    const { createdAt, updatedAt, doctor, ...response } = await this.updateScheduleRepository.updateAndReload(scheduleId, params)
+    delete response.patient.createdAt
+    delete response.patient.updatedAt
+    delete response.patient.deletedAt
+    return response
   }
 }

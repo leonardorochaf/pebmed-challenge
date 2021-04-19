@@ -136,4 +136,15 @@ describe('Update Schedule Usecase', () => {
     const promise = sut.execute(mockRequestId, mockRequestParams)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should not have properties createdAt, updatedAt and deletedAt on returned schedule', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequestId, mockRequestParams)
+    expect(response).not.toHaveProperty('createdAt')
+    expect(response).not.toHaveProperty('updatedAt')
+    expect(response).not.toHaveProperty('doctor')
+    expect(response.patient).not.toHaveProperty('createdAt')
+    expect(response.patient).not.toHaveProperty('updatedAt')
+    expect(response.patient).not.toHaveProperty('deletedAt')
+  })
 })
