@@ -87,4 +87,13 @@ describe('Delete Schedule Usecase', () => {
     await sut.execute(mockRequestId)
     expect(deleteByIdSpy).toHaveBeenCalledWith(mockRequestId)
   })
+
+  test('Should throw if DeleteScheduleRepository throws', async () => {
+    const { sut, deleteScheduleRepositoryStub } = sutFactory()
+    jest.spyOn(deleteScheduleRepositoryStub, 'deleteById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId)
+    await expect(promise).rejects.toThrow()
+  })
 })
