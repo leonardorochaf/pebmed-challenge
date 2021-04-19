@@ -22,7 +22,9 @@ export class UpdateScheduleController {
       }
 
       const { time } = req.body
-      await this.updateScheduleUsecase.execute(req.params.id, { time })
+      const updatedSchedule = await this.updateScheduleUsecase.execute(req.params.id, { time })
+
+      return res.status(200).json(updatedSchedule)
     } catch (e) {
       if (e instanceof ScheduleNotFoundError) {
         return res.status(404).json({ error: e.message })

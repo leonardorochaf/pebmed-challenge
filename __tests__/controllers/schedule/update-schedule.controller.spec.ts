@@ -134,4 +134,11 @@ describe('Update Schedule Controller', () => {
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
+
+  test('Should 200 and return created schedule on success', async () => {
+    const { sut } = sutFactory()
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(mockResponse)
+  })
 })
