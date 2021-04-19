@@ -110,4 +110,33 @@ describe('Schedule routes', () => {
         })
     })
   })
+
+  describe('DELETE /schedules/:id', () => {
+    test('Should 204 on success', async () => {
+      const token = await createDoctorAndGetAuthToken()
+      const patientRepository = getConnection(process.env.NODE_ENV).getRepository(Patient)
+      await patientRepository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        phone: '21 123456789',
+        email: 'leonardo.rocha@gmail.com',
+        birthday: '1995-03-08',
+        gender: Gender.MASCULINO,
+        height: 1.78,
+        weight: 80
+      })
+      const response = await request(app)
+        .post(`${apiPath}/schedules`)
+        .set('x-auth-token', token)
+        .send({
+          time: '2021-04-18 21:11:00',
+          patientId: '1'
+        })
+      await request(app)
+        .delete(`${apiPath}/schedules/${response.body.id}`)
+        .expect(204).then((res) => {
+          expect(res.body).toStrictEqual({})
+        })
+    })
+  })
 })
