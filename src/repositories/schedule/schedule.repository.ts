@@ -6,12 +6,16 @@ import { Schedule } from '../../models/Schedule'
 import { ISaveScheduleRepository, SaveScheduleParams } from './interfaces/save-schedule.repository.interface'
 import { IGetScheduleByTimeRepository } from './interfaces/get-schedule-by-time.reposioty.interface'
 import { IGetAllSchedulesByDoctorRepository } from './interfaces/get-all-schedules-by-doctor.repository.interface'
+import { IGetScheduleByIdRepository } from './interfaces/get-schedule-by-id.repository'
+import { IUpdateScheduleRepository, UpdateScheduleData } from './interfaces/update-schedule.repository.interface'
 
 @EntityRepository(Schedule)
 export class ScheduleRepository extends Repository<Schedule> implements
   ISaveScheduleRepository,
   IGetScheduleByTimeRepository,
-  IGetAllSchedulesByDoctorRepository {
+  IGetAllSchedulesByDoctorRepository,
+  IGetScheduleByIdRepository,
+  IUpdateScheduleRepository {
   async createAndSave (params: SaveScheduleParams): Promise<Schedule> {
     const createdSchedule = new Schedule()
     createdSchedule.time = params.time
@@ -32,5 +36,16 @@ export class ScheduleRepository extends Repository<Schedule> implements
       .innerJoin('schedule.doctor', 'doctor')
       .where('doctor.id = :id', { id: doctorId })
       .getMany()
+  }
+
+  async getById (scheduleId: string): Promise<Schedule> {
+    return await this.findOne({ id: scheduleId })
+  }
+
+  async updateAndReload (scheduleId: string, data: UpdateScheduleData): Promise<Schedule> {
+    const updatedSchedule = this.create(data)
+    updatedSchedule.id = scheduleId
+    await this.save(updatedSchedule)
+    return await this.findOne({ id: scheduleId })
   }
 }
