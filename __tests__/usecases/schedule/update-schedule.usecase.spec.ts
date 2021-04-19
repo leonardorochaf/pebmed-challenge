@@ -5,6 +5,7 @@ import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
 import { IGetScheduleByTimeRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
+import { IUpdateScheduleRepository, UpdateScheduleData } from '../../../src/repositories/schedule/interfaces/update-schedule.repository.interface'
 import { UpdateScheduleUsecase } from '../../../src/usecases/schedule/update-schedule.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
 
@@ -47,20 +48,29 @@ class GetScheduleByTimeRepositoryStub implements IGetScheduleByTimeRepository {
   }
 }
 
+class UpdateScheduleRepositoryStub implements IUpdateScheduleRepository {
+  async updateAndReload (scheduleId: string, data: UpdateScheduleData): Promise<Schedule> {
+    return mockResponse
+  }
+}
+
 type SutTypes = {
   sut: UpdateScheduleUsecase
   getScheduleByIdRepositoryStub: GetScheduleByIdRepositoryStub
   getScheduleByTimeRepositoryStub: GetScheduleByTimeRepositoryStub
+  updateScheduleRepositoryStub: UpdateScheduleRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const updateScheduleRepositoryStub = new UpdateScheduleRepositoryStub()
   const getScheduleByTimeRepositoryStub = new GetScheduleByTimeRepositoryStub()
   const getScheduleByIdRepositoryStub = new GetScheduleByIdRepositoryStub()
-  const sut = new UpdateScheduleUsecase(getScheduleByIdRepositoryStub, getScheduleByTimeRepositoryStub)
+  const sut = new UpdateScheduleUsecase(getScheduleByIdRepositoryStub, getScheduleByTimeRepositoryStub, updateScheduleRepositoryStub)
   return {
     sut,
     getScheduleByIdRepositoryStub,
-    getScheduleByTimeRepositoryStub
+    getScheduleByTimeRepositoryStub,
+    updateScheduleRepositoryStub
   }
 }
 
@@ -109,5 +119,12 @@ describe('Update Schedule Usecase', () => {
     })
     const promise = sut.execute(mockRequestId, mockRequestParams)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call UpdateScheduleRepository with correct values', async () => {
+    const { sut, updateScheduleRepositoryStub } = sutFactory()
+    const updateAndReloadSpy = jest.spyOn(updateScheduleRepositoryStub, 'updateAndReload')
+    await sut.execute(mockRequestId, mockRequestParams)
+    expect(updateAndReloadSpy).toHaveBeenCalledWith(mockRequestId, mockRequestParams)
   })
 })
