@@ -63,4 +63,13 @@ describe('Delete Schedule Usecase', () => {
     const promise = sut.execute(mockRequestId)
     await expect(promise).rejects.toThrow(ScheduleNotFoundError)
   })
+
+  test('Should throw if GetScheduleByIdRepository throws', async () => {
+    const { sut, getScheduleByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getScheduleByIdRepositoryStub, 'getById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId)
+    await expect(promise).rejects.toThrow()
+  })
 })
