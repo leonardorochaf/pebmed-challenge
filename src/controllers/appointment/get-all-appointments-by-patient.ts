@@ -9,7 +9,9 @@ export class GetAllAppointmentsByPatientController {
 
   async handle (req: Request, res: Response) {
     try {
-      await this.getAllAppointmentsByPatientUsecase.execute(req.params.patientId)
+      const allAppointmentsByPatient = await this.getAllAppointmentsByPatientUsecase.execute(req.params.patientId)
+
+      return res.status(200).json(allAppointmentsByPatient)
     } catch (e) {
       res.status(500).json({ error: serverErrorMessage })
     }
