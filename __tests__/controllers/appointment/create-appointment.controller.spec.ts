@@ -6,6 +6,7 @@ import { IValidator } from '../../../src/validation/interfaces/validator.interfa
 import { ValidationError } from '../../../src/errors/validation-error'
 import { CreateAppointmentValidationModel } from '../../../src/validation/validation-models/appointment/create-appointment-validation.model'
 import { CreateAppointmentController } from '../../../src/controllers/appointment/create-appointment.controller'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   body: {
@@ -52,5 +53,15 @@ describe('Create Appointment Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: [{ message: 'Observação é obrigatória' }] })
+  })
+
+  test('Should 500 and return server error message if validation throws', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
