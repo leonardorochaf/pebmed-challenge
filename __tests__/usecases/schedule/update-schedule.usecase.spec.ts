@@ -1,7 +1,7 @@
 import faker from 'faker'
+
 import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
-
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
 import { IGetScheduleByTimeRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
