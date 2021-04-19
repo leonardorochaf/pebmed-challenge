@@ -67,4 +67,13 @@ describe('Update Schedule Usecase', () => {
     const promise = sut.execute(mockRequestId, mockRequestParams)
     await expect(promise).rejects.toThrow(ScheduleNotFoundError)
   })
+
+  test('Should throw ScheduleNotFoundError if GetScheduleByIdRespository returns null', async () => {
+    const { sut, getScheduleByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getScheduleByIdRepositoryStub, 'getById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId, mockRequestParams)
+    await expect(promise).rejects.toThrow()
+  })
 })
