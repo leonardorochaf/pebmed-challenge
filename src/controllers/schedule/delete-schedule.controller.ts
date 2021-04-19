@@ -11,6 +11,8 @@ export class DeleteScheduleController {
   async handle (req: Request, res: Response) {
     try {
       await this.deleteScheduleUsecase.execute(req.params.id)
+
+      return res.status(204).json()
     } catch (e) {
       if (e instanceof ScheduleNotFoundError) {
         return res.status(404).json({ error: e.message })
