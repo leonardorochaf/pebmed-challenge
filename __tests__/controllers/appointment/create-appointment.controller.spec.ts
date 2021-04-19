@@ -79,4 +79,14 @@ describe('Create Appointment Controller', () => {
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.body)
   })
+
+  test('Should 500 and return server error message if CreateAppointmentUsecase throws', async () => {
+    const { sut, createAppointmentUsecaseStub } = sutFactory()
+    jest.spyOn(createAppointmentUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
 })
