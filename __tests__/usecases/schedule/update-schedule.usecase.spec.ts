@@ -3,6 +3,7 @@ import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-er
 
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
+import { IGetScheduleByTimeRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-time.reposioty.interface'
 import { UpdateScheduleUsecase } from '../../../src/usecases/schedule/update-schedule.usecase'
 import { Gender } from '../../../src/utils/gender-enum'
 
@@ -39,17 +40,26 @@ class GetScheduleByIdRepositoryStub implements IGetScheduleByIdRepository {
   }
 }
 
+class GetScheduleByTimeRepositoryStub implements IGetScheduleByTimeRepository {
+  async getByTime (time: Date): Promise<Schedule> {
+    return null
+  }
+}
+
 type SutTypes = {
   sut: UpdateScheduleUsecase
   getScheduleByIdRepositoryStub: GetScheduleByIdRepositoryStub
+  getScheduleByTimeRepositoryStub: GetScheduleByTimeRepositoryStub
 }
 
 const sutFactory = (): SutTypes => {
+  const getScheduleByTimeRepositoryStub = new GetScheduleByTimeRepositoryStub()
   const getScheduleByIdRepositoryStub = new GetScheduleByIdRepositoryStub()
-  const sut = new UpdateScheduleUsecase(getScheduleByIdRepositoryStub)
+  const sut = new UpdateScheduleUsecase(getScheduleByIdRepositoryStub, getScheduleByTimeRepositoryStub)
   return {
     sut,
-    getScheduleByIdRepositoryStub
+    getScheduleByIdRepositoryStub,
+    getScheduleByTimeRepositoryStub
   }
 }
 
@@ -75,5 +85,12 @@ describe('Update Schedule Usecase', () => {
     })
     const promise = sut.execute(mockRequestId, mockRequestParams)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call GetScheduleByTimeRepository with correct value', async () => {
+    const { sut, getScheduleByTimeRepositoryStub } = sutFactory()
+    const getByIdSpy = jest.spyOn(getScheduleByTimeRepositoryStub, 'getByTime')
+    await sut.execute(mockRequestId, mockRequestParams)
+    expect(getByIdSpy).toHaveBeenCalledWith(mockRequestParams.time)
   })
 })
