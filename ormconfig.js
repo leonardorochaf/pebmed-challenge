@@ -4,26 +4,26 @@ module.exports = [
   {
     name: 'dev',
     type: 'mysql',
-    host: 'localhost',
-    username: 'root',
-    password: 'root',
-    database: 'pebmed',
+    host: 'mysqldb',
+    username: process.env.MYSQL_ROOT_USERNAME,
+    password: process.env.MYSQL_ROOT_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
     namingStrategy: new SnakeNamingStrategy(),
     entities: [
-      './src/models/*.ts'
+      './dist/models/*.js'
     ],
     migrations: [
-      './src/database/migrations/*.ts'
+      './dist/database/migrations/*.js'
     ]
   },
   {
     name: 'test',
     type: 'mysql',
     host: 'localhost',
-    username: 'root',
-    password: 'root',
-    database: 'pebmed-test',
-    dropSchema: true,
+    username: process.env.MYSQL_ROOT_USERNAME,
+    password: process.env.MYSQL_ROOT_PASSWORD,
+    port: process.env.MYSQL_LOCAL_PORT,
+    database: 'pebmed_test',
     migrationsRun: true,
     namingStrategy: new SnakeNamingStrategy(),
     entities: [

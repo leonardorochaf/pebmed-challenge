@@ -1,7 +1,7 @@
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 
-import { ValidationError } from '../../src/errors/validation-error'
+import { ValidationError } from '../errors/validation-error'
 import { IValidator } from '../../src/validation/interfaces/validator.interface'
 
 export class Validator implements IValidator {

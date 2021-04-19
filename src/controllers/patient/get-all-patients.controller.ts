@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { serverErrorMessage } from '../../utils/strings'
 import { IGetAllPatientsUsecase } from '../../../src/usecases/patient/interface/get-all-patients.usecase.interface'
-import { serverErrorMessage } from '../../../src/utils/strings'
 
 export class GetAllPatientsController {
   constructor (private readonly getAllPatientsUsecase: IGetAllPatientsUsecase) { }
