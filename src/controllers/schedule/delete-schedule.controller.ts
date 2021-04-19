@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 
 import { ScheduleNotFoundError } from '../../errors/schedule-not-found-error'
 import { IDeleteScheduleUsecase } from '../../usecases/schedule/interfaces/delete-schedule.usecase.interface'
+import { serverErrorMessage } from '../../utils/strings'
 
 export class DeleteScheduleController {
   constructor (private readonly deleteScheduleUsecase: IDeleteScheduleUsecase) { }
@@ -14,6 +15,7 @@ export class DeleteScheduleController {
       if (e instanceof ScheduleNotFoundError) {
         return res.status(404).json({ error: e.message })
       }
+      return res.status(500).json({ error: serverErrorMessage })
     }
   }
 }

@@ -4,6 +4,7 @@ import faker from 'faker'
 import { DeleteScheduleController } from '../../../src/controllers/schedule/delete-schedule.controller'
 import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 import { IDeleteScheduleUsecase } from '../../../src/usecases/schedule/interfaces/delete-schedule.usecase.interface'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   params: {
@@ -49,5 +50,15 @@ describe('Delete Schedule Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.json).toHaveBeenCalledWith({ error: 'Agendamento não encontrado' })
+  })
+
+  test('Should 500 and return server error message if DeleteSheduleUsecase throws', async () => {
+    const { sut, deleteScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(deleteScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
