@@ -100,6 +100,7 @@ describe('Schedule routes', () => {
         })
       await request(app)
         .put(`${apiPath}/schedules/${response.body.id}`)
+        .set('x-auth-token', token)
         .send({
           time: '2021-04-19 10:00:00'
         })
@@ -134,6 +135,7 @@ describe('Schedule routes', () => {
         })
       await request(app)
         .delete(`${apiPath}/schedules/${response.body.id}`)
+        .set('x-auth-token', token)
         .expect(204).then((res) => {
           expect(res.body).toStrictEqual({})
         })
