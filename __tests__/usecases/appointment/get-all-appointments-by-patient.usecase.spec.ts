@@ -69,4 +69,16 @@ describe('Get All Appointments By Patient Usecase', () => {
     const promise = sut.execute(mockRequestid)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should not have properties createdAt, updatedAt, deletedAt and doctor on returned appointment', async () => {
+    const { sut } = sutFactory()
+    const response = await sut.execute(mockRequestid)
+    expect(response[0]).not.toHaveProperty('createdAt')
+    expect(response[0]).not.toHaveProperty('updatedAt')
+    expect(response[0]).not.toHaveProperty('doctor')
+    expect(response[0].schedule).not.toHaveProperty('doctor')
+    expect(response[0].schedule.patient).not.toHaveProperty('createdAt')
+    expect(response[0].schedule.patient).not.toHaveProperty('updatedAt')
+    expect(response[0].schedule.patient).not.toHaveProperty('deletedAt')
+  })
 })

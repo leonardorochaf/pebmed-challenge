@@ -6,8 +6,19 @@ export class GetAllAppointmentsByPatientUsecase implements IGetAllAppointmentsBy
   constructor (private readonly getAllAppointmentsByPatientRepository: IGetAllAppointmentsByPatientRepository) { }
 
   async execute (patientId: string): Promise<DefaultAppointmentResponse[]> {
-    await this.getAllAppointmentsByPatientRepository.getAllByPatient(patientId)
+    const allAppointmentsByPatient = await this.getAllAppointmentsByPatientRepository.getAllByPatient(patientId)
 
-    return Promise.resolve(null)
+    const response = allAppointmentsByPatient.map(({ createdAt, ...response }) => {
+      delete response.schedule.createdAt
+      delete response.schedule.updatedAt
+      delete response.schedule.doctor
+      delete response.schedule.patient.createdAt
+      delete response.schedule.patient.updatedAt
+      delete response.schedule.patient.deletedAt
+
+      return response
+    })
+
+    return response
   }
 }
