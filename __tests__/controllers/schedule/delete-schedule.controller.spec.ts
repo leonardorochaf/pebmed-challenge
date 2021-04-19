@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import faker from 'faker'
 import { DeleteScheduleController } from '../../../src/controllers/schedule/delete-schedule.controller'
+import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 import { IDeleteScheduleUsecase } from '../../../src/usecases/schedule/interfaces/delete-schedule.usecase.interface'
 
 const req: Request = {
@@ -38,5 +39,15 @@ describe('Delete Schedule Controller', () => {
     const executeSpy = jest.spyOn(deleteScheduleUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.id)
+  })
+
+  test('Should 404 and return default messages if DeleteSheduleUsecase throw ScheduelNotFoundError', async () => {
+    const { sut, deleteScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(deleteScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new ScheduleNotFoundError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(404)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Agendamento não encontrado' })
   })
 })

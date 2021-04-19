@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { ScheduleNotFoundError } from '../../errors/schedule-not-found-error'
 import { IDeleteScheduleUsecase } from '../../usecases/schedule/interfaces/delete-schedule.usecase.interface'
 
 export class DeleteScheduleController {
   constructor (private readonly deleteScheduleUsecase: IDeleteScheduleUsecase) { }
 
   async handle (req: Request, res: Response) {
-    await this.deleteScheduleUsecase.execute(req.params.id)
+    try {
+      await this.deleteScheduleUsecase.execute(req.params.id)
+    } catch (e) {
+      if (e instanceof ScheduleNotFoundError) {
+        return res.status(404).json({ error: e.message })
+      }
+    }
   }
 }
