@@ -45,4 +45,12 @@ describe('Create Appointment Controller', () => {
     await sut.handle(req, res)
     expect(validateSpy).toHaveBeenCalledWith(req.body, CreateAppointmentValidationModel, false)
   })
+
+  test('Should 400 and return validation error messages if validation fails', async () => {
+    const { sut, validatorStub } = sutFactory()
+    jest.spyOn(validatorStub, 'validate').mockReturnValueOnce(Promise.resolve(new ValidationError(['Observação é obrigatória'])))
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: [{ message: 'Observação é obrigatória' }] })
+  })
 })
