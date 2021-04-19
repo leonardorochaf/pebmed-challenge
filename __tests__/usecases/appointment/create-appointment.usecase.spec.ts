@@ -33,4 +33,13 @@ describe('Create Appointment Usecase', () => {
     await sut.execute(mockRequest)
     expect(createAndSaveSpy).toHaveBeenCalledWith(mockRequest)
   })
+
+  test('Should throw if SaveAppointmentRepository throws', async () => {
+    const { sut, saveAppointmentRepositoryStub } = sutFactory()
+    jest.spyOn(saveAppointmentRepositoryStub, 'createAndSave').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequest)
+    await expect(promise).rejects.toThrow()
+  })
 })
