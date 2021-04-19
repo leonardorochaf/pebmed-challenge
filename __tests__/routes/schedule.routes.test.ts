@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import request from 'supertest'
 import { getConnection } from 'typeorm'
 
@@ -72,6 +73,40 @@ describe('Schedule routes', () => {
           expect(res.body.patient.gender).toBe('Masculino')
           expect(res.body.patient.height).toBe(1.78)
           expect(res.body.patient.weight).toBe(80)
+        })
+    })
+  })
+
+  describe('PUT /schedules/:id', () => {
+    test('Should 200 and return updated schedule on success', async () => {
+      const token = await createDoctorAndGetAuthToken()
+      const patientRepository = getConnection(process.env.NODE_ENV).getRepository(Patient)
+      await patientRepository.save({
+        id: '1',
+        name: 'Leonardo Rocha',
+        phone: '21 123456789',
+        email: 'leonardo.rocha@gmail.com',
+        birthday: '1995-03-08',
+        gender: Gender.MASCULINO,
+        height: 1.78,
+        weight: 80
+      })
+      const response = await request(app)
+        .post(`${apiPath}/schedules`)
+        .set('x-auth-token', token)
+        .send({
+          time: '2021-04-18 21:11:00',
+          patientId: '1'
+        })
+      await request(app)
+        .put(`${apiPath}/schedules/${response.body.id}`)
+        .send({
+          time: '2021-04-19 10:00:00'
+        })
+        .expect(200).then((res) => {
+          expect(res.body).toHaveProperty('id')
+          expect(res.body.time).toBe('2021-04-19T13:00:00.000Z')
+          expect(res.body.patient).toBeTruthy()
         })
     })
   })

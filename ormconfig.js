@@ -8,7 +8,6 @@ module.exports = [
     username: 'root',
     password: 'root',
     database: 'pebmed',
-    logging: true,
     namingStrategy: new SnakeNamingStrategy(),
     entities: [
       './src/models/*.ts'
