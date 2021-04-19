@@ -5,6 +5,7 @@ import faker from 'faker'
 import { UpdateScheduleController } from '../../../src/controllers/schedule/update-schedule.controller'
 import { DefaultScheduleResponse } from '../../../src/dtos/schedule/default-schedule-response'
 import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
+import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { IUpdateScheduleUsecase, UpdateScheduleParams } from '../../../src/usecases/schedule/interfaces/update-schedule.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -112,5 +113,15 @@ describe('Update Schedule Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.json).toHaveBeenCalledWith({ error: 'Agendamento não encontrado' })
+  })
+
+  test('Should 400 and return default message if UpdateScheduleUsecae throw ScheduleTimeAlreadyTakenError', async () => {
+    const { sut, updateScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(updateScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new ScheduleTimeAlreadyTakenError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Horário para agendamento já cadastrado' })
   })
 })

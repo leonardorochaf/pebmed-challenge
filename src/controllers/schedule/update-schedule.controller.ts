@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 
 import { ScheduleNotFoundError } from '../../errors/schedule-not-found-error'
+import { ScheduleTimeAlreadyTakenError } from '../../errors/schedule-time-already-taken-error'
 import { IUpdateScheduleUsecase } from '../../usecases/schedule/interfaces/update-schedule.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -25,6 +26,9 @@ export class UpdateScheduleController {
     } catch (e) {
       if (e instanceof ScheduleNotFoundError) {
         return res.status(404).json({ error: e.message })
+      }
+      if (e instanceof ScheduleTimeAlreadyTakenError) {
+        return res.status(400).json({ error: e.message })
       }
       return res.status(500).json({ error: serverErrorMessage })
     }
