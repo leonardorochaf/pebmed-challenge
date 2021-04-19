@@ -5,6 +5,7 @@ import { createPatientFactory } from '../factories/patient/create-patient.factor
 import { deletePatientFactory } from '../factories/patient/delete-patient.factory'
 import { getAllPatientsFactory } from '../factories/patient/get-all-patients.factory'
 import { getPatientByIdFactory } from '../factories/patient/get-patient-by-id.factory'
+import { updatePatientFactory } from '../factories/update-patient.factory'
 import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
@@ -19,6 +20,10 @@ router.get('/', authMiddleware, (req, res) => {
 
 router.get('/:id/', authMiddleware, (req, res) => {
   getPatientByIdFactory().handle(req, res)
+})
+
+router.put('/:id', (req, res) => {
+  updatePatientFactory().handle(req, res)
 })
 
 router.delete('/:id', authMiddleware, (req, res) => {
