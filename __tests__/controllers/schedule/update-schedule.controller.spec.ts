@@ -97,7 +97,7 @@ describe('Update Schedule Controller', () => {
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 
-  test('Should call Validator with correct values', async () => {
+  test('Should call UpdateScheduleUsecase with correct values', async () => {
     const { sut, updateScheduleUsecaseStub } = sutFactory()
     const executeSpy = jest.spyOn(updateScheduleUsecaseStub, 'execute')
     const time = req.body.time
@@ -123,5 +123,15 @@ describe('Update Schedule Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({ error: 'Horário para agendamento já cadastrado' })
+  })
+
+  test('Should 500 and return server error message if UpdateScheduleUsecae throws', async () => {
+    const { sut, updateScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(updateScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })
