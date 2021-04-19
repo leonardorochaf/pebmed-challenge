@@ -20,8 +20,9 @@ export class CreateAppointmentController {
       }
 
       const { observation, scheduleId } = req.body
-
       await this.createAppointmentUsecase.execute({ observation, scheduleId })
+
+      return res.status(201).json()
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }
