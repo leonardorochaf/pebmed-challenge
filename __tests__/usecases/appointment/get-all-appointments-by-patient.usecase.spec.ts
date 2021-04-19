@@ -60,4 +60,13 @@ describe('Get All Appointments By Patient Usecase', () => {
     await sut.execute(mockRequestid)
     expect(getAllByPatientSpy).toHaveBeenCalledWith(mockRequestid)
   })
+
+  test('Should throw if GetAllAppointmentsByPatientRepository throws', async () => {
+    const { sut, getAllAppointmentsByPatientRepositoryStub } = sutFactory()
+    jest.spyOn(getAllAppointmentsByPatientRepositoryStub, 'getAllByPatient').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestid)
+    await expect(promise).rejects.toThrow()
+  })
 })
