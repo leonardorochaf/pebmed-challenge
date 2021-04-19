@@ -8,6 +8,7 @@ import { IGetScheduleByTimeRepository } from './interfaces/get-schedule-by-time.
 import { IGetAllSchedulesByDoctorRepository } from './interfaces/get-all-schedules-by-doctor.repository.interface'
 import { IGetScheduleByIdRepository } from './interfaces/get-schedule-by-id.repository'
 import { IUpdateScheduleRepository, UpdateScheduleData } from './interfaces/update-schedule.repository.interface'
+import { IDeleteScheduleRepository } from './interfaces/delete-schedule.repository'
 
 @EntityRepository(Schedule)
 export class ScheduleRepository extends Repository<Schedule> implements
@@ -15,7 +16,8 @@ export class ScheduleRepository extends Repository<Schedule> implements
   IGetScheduleByTimeRepository,
   IGetAllSchedulesByDoctorRepository,
   IGetScheduleByIdRepository,
-  IUpdateScheduleRepository {
+  IUpdateScheduleRepository,
+  IDeleteScheduleRepository {
   async createAndSave (params: SaveScheduleParams): Promise<Schedule> {
     const createdSchedule = new Schedule()
     createdSchedule.time = params.time
@@ -47,5 +49,9 @@ export class ScheduleRepository extends Repository<Schedule> implements
     updatedSchedule.id = scheduleId
     await this.save(updatedSchedule)
     return await this.findOne({ id: scheduleId })
+  }
+
+  async deleteById (scheduleId: string): Promise<void> {
+    await this.delete({ id: scheduleId })
   }
 }
