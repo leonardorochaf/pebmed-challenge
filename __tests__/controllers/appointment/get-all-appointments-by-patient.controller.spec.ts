@@ -6,6 +6,7 @@ import { DefaultAppointmentResponse } from '../../../src/dtos/appointment/defaul
 import { IGetAllAppointmentsByPatientUsecase } from '../../../src/usecases/appointment/interfaces/get-all-appointments-by-patient.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
 import { GetAllAppointmentsByPatientController } from '../../../src/controllers/appointment/get-all-appointments-by-patient'
+import { serverErrorMessage } from '../../../src/utils/strings'
 
 const req: Request = {
   params: {
@@ -62,5 +63,15 @@ describe('Get All Appointments By Patient Controller', () => {
     const executeSpy = jest.spyOn(getAllAppointmentsByPatientUsecaseStub, 'execute')
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.patientId)
+  })
+
+  test('Should 500 and return server error message if GetAllAppointmentsByPatientUsecase throws', async () => {
+    const { sut, getAllAppointmentsByPatientUsecaseStub } = sutFactory()
+    jest.spyOn(getAllAppointmentsByPatientUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
   })
 })

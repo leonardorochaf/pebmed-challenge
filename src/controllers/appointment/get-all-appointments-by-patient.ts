@@ -2,11 +2,16 @@
 import { Request, Response } from 'express'
 
 import { IGetAllAppointmentsByPatientUsecase } from '../../usecases/appointment/interfaces/get-all-appointments-by-patient.usecase.interface'
+import { serverErrorMessage } from '../../utils/strings'
 
 export class GetAllAppointmentsByPatientController {
   constructor (private readonly getAllAppointmentsByPatientUsecase: IGetAllAppointmentsByPatientUsecase) { }
 
   async handle (req: Request, res: Response) {
-    await this.getAllAppointmentsByPatientUsecase.execute(req.params.patientId)
+    try {
+      await this.getAllAppointmentsByPatientUsecase.execute(req.params.patientId)
+    } catch (e) {
+      res.status(500).json({ error: serverErrorMessage })
+    }
   }
 }
