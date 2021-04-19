@@ -1,5 +1,6 @@
 import faker from 'faker'
 import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
+import { ScheduleTimeAlreadyTakenError } from '../../../src/errors/schedule-time-already-taken-error'
 
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
@@ -92,5 +93,12 @@ describe('Update Schedule Usecase', () => {
     const getByIdSpy = jest.spyOn(getScheduleByTimeRepositoryStub, 'getByTime')
     await sut.execute(mockRequestId, mockRequestParams)
     expect(getByIdSpy).toHaveBeenCalledWith(mockRequestParams.time)
+  })
+
+  test('Should throw ScheduleTimeAlreadyTakenError if GetScheduleByTime returns a schedule', async () => {
+    const { sut, getScheduleByTimeRepositoryStub } = sutFactory()
+    jest.spyOn(getScheduleByTimeRepositoryStub, 'getByTime').mockReturnValueOnce(Promise.resolve(mockResponse))
+    const promise = sut.execute(mockRequestId, mockRequestParams)
+    await expect(promise).rejects.toThrow(ScheduleTimeAlreadyTakenError)
   })
 })
