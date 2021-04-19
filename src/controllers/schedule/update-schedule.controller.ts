@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { ScheduleNotFoundError } from '../../errors/schedule-not-found-error'
 import { IUpdateScheduleUsecase } from '../../usecases/schedule/interfaces/update-schedule.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
@@ -22,6 +23,9 @@ export class UpdateScheduleController {
       const { time } = req.body
       await this.updateScheduleUsecase.execute(req.params.id, { time })
     } catch (e) {
+      if (e instanceof ScheduleNotFoundError) {
+        return res.status(404).json({ error: e.message })
+      }
       return res.status(500).json({ error: serverErrorMessage })
     }
   }

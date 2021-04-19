@@ -4,6 +4,7 @@ import faker from 'faker'
 
 import { UpdateScheduleController } from '../../../src/controllers/schedule/update-schedule.controller'
 import { DefaultScheduleResponse } from '../../../src/dtos/schedule/default-schedule-response'
+import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 import { ValidationError } from '../../../src/errors/validation-error'
 import { IUpdateScheduleUsecase, UpdateScheduleParams } from '../../../src/usecases/schedule/interfaces/update-schedule.usecase.interface'
 import { Gender } from '../../../src/utils/gender-enum'
@@ -101,5 +102,15 @@ describe('Update Schedule Controller', () => {
     const time = req.body.time
     await sut.handle(req, res)
     expect(executeSpy).toHaveBeenCalledWith(req.params.patientId, { time })
+  })
+
+  test('Should 404 and return default message if UpdateScheduleUsecae throw ScheduleNotFoundError', async () => {
+    const { sut, updateScheduleUsecaseStub } = sutFactory()
+    jest.spyOn(updateScheduleUsecaseStub, 'execute').mockImplementationOnce(() => {
+      throw new ScheduleNotFoundError()
+    })
+    await sut.handle(req, res)
+    expect(res.status).toHaveBeenCalledWith(404)
+    expect(res.json).toHaveBeenCalledWith({ error: 'Agendamento não encontrado' })
   })
 })
