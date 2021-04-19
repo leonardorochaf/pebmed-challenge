@@ -11,10 +11,6 @@ export class GetAllAppointmentsByPatientUsecase implements IGetAllAppointmentsBy
     const response = allAppointmentsByPatient.map(({ createdAt, ...response }) => {
       delete response.schedule.createdAt
       delete response.schedule.updatedAt
-      delete response.schedule.doctor
-      delete response.schedule.patient.createdAt
-      delete response.schedule.patient.updatedAt
-      delete response.schedule.patient.deletedAt
 
       return response
     })
