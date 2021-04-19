@@ -1,4 +1,5 @@
 import faker from 'faker'
+import { ScheduleNotFoundError } from '../../../src/errors/schedule-not-found-error'
 
 import { Schedule } from '../../../src/models/Schedule'
 import { IGetScheduleByIdRepository } from '../../../src/repositories/schedule/interfaces/get-schedule-by-id.repository'
@@ -54,5 +55,12 @@ describe('Delete Schedule Usecase', () => {
     const getByIdSpy = jest.spyOn(getScheduleByIdRepositoryStub, 'getById')
     await sut.execute(mockRequestId)
     expect(getByIdSpy).toHaveBeenCalledWith(mockRequestId)
+  })
+
+  test('Should throw ScheduleNotFoundError if GetScheduleByIdRepository returns null', async () => {
+    const { sut, getScheduleByIdRepositoryStub } = sutFactory()
+    jest.spyOn(getScheduleByIdRepositoryStub, 'getById').mockReturnValueOnce(Promise.resolve(null))
+    const promise = sut.execute(mockRequestId)
+    await expect(promise).rejects.toThrow(ScheduleNotFoundError)
   })
 })

@@ -1,3 +1,4 @@
+import { ScheduleNotFoundError } from '../../errors/schedule-not-found-error'
 import { IGetScheduleByIdRepository } from '../../repositories/schedule/interfaces/get-schedule-by-id.repository'
 import { IDeleteScheduleUsecase } from './interfaces/delete-schedule.usecase.interface'
 
@@ -7,6 +8,9 @@ export class DeleteScheduleUsecase implements IDeleteScheduleUsecase {
   ) { }
 
   async execute (scheduleId: string): Promise<void> {
-    await this.getScheduleByIdRepository.getById(scheduleId)
+    const scheduleById = await this.getScheduleByIdRepository.getById(scheduleId)
+    if (!scheduleById) {
+      throw new ScheduleNotFoundError()
+    }
   }
 }
