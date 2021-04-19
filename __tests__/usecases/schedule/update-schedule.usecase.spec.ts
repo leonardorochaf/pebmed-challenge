@@ -127,4 +127,13 @@ describe('Update Schedule Usecase', () => {
     await sut.execute(mockRequestId, mockRequestParams)
     expect(updateAndReloadSpy).toHaveBeenCalledWith(mockRequestId, mockRequestParams)
   })
+
+  test('Should throw if UpdateScheduleRepository throws', async () => {
+    const { sut, updateScheduleRepositoryStub } = sutFactory()
+    jest.spyOn(updateScheduleRepositoryStub, 'updateAndReload').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.execute(mockRequestId, mockRequestParams)
+    await expect(promise).rejects.toThrow()
+  })
 })
