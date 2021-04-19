@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Request, Response } from 'express'
 
+import { IUpdateScheduleUsecase } from '../../usecases/schedule/interfaces/update-schedule.usecase.interface'
 import { serverErrorMessage } from '../../utils/strings'
 import { IValidator } from '../../validation/interfaces/validator.interface'
 import { UpdateScheduleValidatonModel } from '../../validation/validation-models/schedule/update-schedule-validation.model'
 
 export class UpdateScheduleController {
   constructor (
-    private readonly validator: IValidator
+    private readonly validator: IValidator,
+    private readonly updateScheduleUsecase: IUpdateScheduleUsecase
   ) { }
 
   async handle (req: Request, res: Response) {
@@ -16,6 +18,9 @@ export class UpdateScheduleController {
       if (validationErrors) {
         return res.status(400).json({ error: validationErrors.errors })
       }
+
+      const { time } = req.body
+      await this.updateScheduleUsecase.execute(req.params.id, { time })
     } catch (e) {
       return res.status(500).json({ error: serverErrorMessage })
     }
