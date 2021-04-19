@@ -7,6 +7,7 @@ import { ValidationError } from '../../../src/errors/validation-error'
 import { CreateAppointmentValidationModel } from '../../../src/validation/validation-models/appointment/create-appointment-validation.model'
 import { CreateAppointmentController } from '../../../src/controllers/appointment/create-appointment.controller'
 import { serverErrorMessage } from '../../../src/utils/strings'
+import { CreateAppointmentParams, ICreateAppointmentUsecase } from '../../../src/usecases/appointment/interfaces/create-appointment.usecase.interface'
 
 const req: Request = {
   body: {
@@ -25,17 +26,24 @@ class ValidatorStub implements IValidator {
   }
 }
 
+class CreateAppointmentUsecaseStub implements ICreateAppointmentUsecase {
+  async execute (params: CreateAppointmentParams): Promise<void> { }
+}
+
 type SutTypes = {
   sut: CreateAppointmentController
   validatorStub: ValidatorStub
+  createAppointmentUsecaseStub: CreateAppointmentUsecaseStub
 }
 
 const sutFactory = (): SutTypes => {
+  const createAppointmentUsecaseStub = new CreateAppointmentUsecaseStub()
   const validatorStub = new ValidatorStub()
-  const sut = new CreateAppointmentController(validatorStub)
+  const sut = new CreateAppointmentController(validatorStub, createAppointmentUsecaseStub)
   return {
     sut,
-    validatorStub
+    validatorStub,
+    createAppointmentUsecaseStub
   }
 }
 
@@ -63,5 +71,12 @@ describe('Create Appointment Controller', () => {
     await sut.handle(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: serverErrorMessage })
+  })
+
+  test('Should call CreateAppointmentUsecase with correct values', async () => {
+    const { sut, createAppointmentUsecaseStub } = sutFactory()
+    const executeSpy = jest.spyOn(createAppointmentUsecaseStub, 'execute')
+    await sut.handle(req, res)
+    expect(executeSpy).toHaveBeenCalledWith(req.body)
   })
 })
