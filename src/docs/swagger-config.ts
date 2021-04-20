@@ -16,6 +16,10 @@ import { defaultScheduleResponse } from './schemas/default-schedule-schema'
 import { baseSchedulePath } from './paths/schedule/base-schedule-path'
 import { updateScheduleRequest } from './schemas/update-schedule-schema'
 import { idSchedulePath } from './paths/schedule/id-schedule-path'
+import { createAppointmentRequest } from './schemas/create-appointment-schema'
+import { baseAppointmentPath } from './paths/appointment/base-appointment.path'
+import { defaultAppointmentResponse } from './schemas/default-appointment-schema'
+import { appointmentsByPatientPath } from './paths/appointment/appointments-by-patient.path'
 
 export default {
   openapi: '3.0.0',
@@ -36,6 +40,9 @@ export default {
     },
     {
       name: 'Agendamento'
+    },
+    {
+      name: 'Consulta'
     }
   ],
   paths: {
@@ -45,7 +52,9 @@ export default {
     '/patients': basePatientPath,
     '/patients/{id}': idPatientPath,
     '/schedules': baseSchedulePath,
-    'schedules/{id}': idSchedulePath
+    '/schedules/{id}': idSchedulePath,
+    '/appointments': baseAppointmentPath,
+    '/appointments/patient/{patientId}': appointmentsByPatientPath
   },
   schemas: {
     signUpRequest: signUpRequest,
@@ -58,7 +67,9 @@ export default {
     defaultPatientResponse: defaultPatientResponse,
     createScheduleRequest: createScheduleRequest,
     updateScheduleRequest: updateScheduleRequest,
-    defaultScheduleResponse: defaultScheduleResponse
+    defaultScheduleResponse: defaultScheduleResponse,
+    createAppointmentRequest: createAppointmentRequest,
+    defaultAppointmentResponse: defaultAppointmentResponse
   },
   components: {
     securitySchemes: {
