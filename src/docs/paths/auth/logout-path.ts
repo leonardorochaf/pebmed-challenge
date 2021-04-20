@@ -13,7 +13,7 @@ export const logoutPath = {
       }
     ],
     responses: {
-      201: {
+      204: {
         description: 'Sucesso'
       },
       500: {
