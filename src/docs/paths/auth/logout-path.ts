@@ -1,6 +1,6 @@
 export const logoutPath = {
   post: {
-    tags: ['Auth'],
+    tags: ['Autenticação'],
     summary: 'Endpoint para deslogar do sistema',
     parameters: [
       {

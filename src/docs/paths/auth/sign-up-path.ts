@@ -1,6 +1,6 @@
 export const signUpPath = {
   post: {
-    tags: ['Auth'],
+    tags: ['Autenticação'],
     summary: 'Endpoint para cadastrar um médico',
     requestBody: {
       content: {

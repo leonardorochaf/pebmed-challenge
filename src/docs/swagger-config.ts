@@ -1,12 +1,15 @@
 import { loginPath } from './paths/auth/login-path'
 import { logoutPath } from './paths/auth/logout-path'
 import { signUpPath } from './paths/auth/sign-up-path'
-import { createPatientPath } from './paths/create-patient-path'
+import { basePatientPath } from './paths/patient/base-patient-path'
+import { idPatientPath } from './paths/patient/id-patient-path'
 import { apiKeyAuthHeader } from './schemas/api-key-auth-schema'
-import { createPatientRequest, createPatientResponse } from './schemas/create-patient-schema'
+import { createPatientRequest } from './schemas/create-patient-schema'
+import { defaultPatientResponse } from './schemas/default-patient-schema'
 import { errorResponse } from './schemas/error-schema'
 import { loginRequest, loginResponse } from './schemas/login-schema'
 import { signUpRequest } from './schemas/sign-up-schemas'
+import { updatePatientRequest } from './schemas/update-patient-schema'
 import { validationErrorResponse } from './schemas/validation-error-schema'
 
 export default {
@@ -21,17 +24,18 @@ export default {
   }],
   tags: [
     {
-      name: 'Auth'
+      name: 'Autenticação'
     },
     {
-      name: 'Patient'
+      name: 'Paciente'
     }
   ],
   paths: {
     '/auth/signup': signUpPath,
     '/auth/login': loginPath,
     '/auth/logout': logoutPath,
-    '/patients': createPatientPath
+    '/patients': basePatientPath,
+    '/patients/{id}': idPatientPath
   },
   schemas: {
     signUpRequest: signUpRequest,
@@ -40,7 +44,8 @@ export default {
     errorResponse: errorResponse,
     validationErrorResponse: validationErrorResponse,
     createPatientRequest: createPatientRequest,
-    createPatientResponse: createPatientResponse
+    updatePatientRequest: updatePatientRequest,
+    defaultPatientResponse: defaultPatientResponse
   },
   components: {
     securitySchemes: {

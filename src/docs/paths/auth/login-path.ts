@@ -1,6 +1,6 @@
 export const loginPath = {
   post: {
-    tags: ['Auth'],
+    tags: ['Autenticação'],
     summary: 'Endpoint para logar no sistema',
     requestBody: {
       content: {
